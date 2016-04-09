@@ -34,9 +34,6 @@ public class ApplicationModeSingleton {
     public void setApplicationMode(ApplicationModeEnum applicationMode) {
 
         this.applicationMode = applicationMode;
-        if (debug != null) {
-            debug.printAppModeChange();
-        }
     }
 
     public Debug getDebug() {

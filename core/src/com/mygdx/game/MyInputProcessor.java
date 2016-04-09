@@ -2,15 +2,11 @@ package com.mygdx.game;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.math.Vector2;
 import com.mygdx.game.application_mode.ApplicationModeEnum;
 import com.mygdx.game.application_mode.ApplicationModeSingleton;
 import com.mygdx.game.debug.Debug;
-import com.mygdx.game.navigation.AStar;
-import com.mygdx.game.navigation.NavigationNode;
 
 import java.awt.*;
-import java.util.List;
 
 
 /**
@@ -22,10 +18,10 @@ public class MyInputProcessor implements InputProcessor {
     private float forward;
     // Turning speed
     private float turning;
-    //The locations of mouse clicks
+    //The locations of a mouse click
     private Point click = new Point();
     private Debug debug;
-    private boolean clicked = false;
+    private boolean newClickToProcess = false;
     private boolean newNavigationClick = false;
     //Whether we want to display the navigation nodes on the screen
     private boolean showNavigationNodes = false;
@@ -136,19 +132,11 @@ public class MyInputProcessor implements InputProcessor {
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
 
-        ApplicationModeEnum appMode = ApplicationModeSingleton.getInstance().getApplicationMode();
-
         //This listener has the game world origin at the top left while the LibGDX spritebatch draw function has it in the bottom left
         //So we must convert the y values to start at the bottom (using the height of the game as 600)
         screenY = 600 - screenY;
-
-        //The current application mode will determine how we handle a click
-        switch (appMode) {
-
-            case SETUP:
-                click.setLocation(screenX, screenY);
-                break;
-        }
+        click = new Point(screenX, screenY);
+        newClickToProcess = true;
 
         return false;
     }
@@ -185,12 +173,16 @@ public class MyInputProcessor implements InputProcessor {
         return turning;
     }
 
+    public boolean isNewClickToProcess() {
+        return newClickToProcess;
+    }
+
     public Point getClick() {
         return click;
     }
 
-    public boolean isClicked() {
-        return clicked;
+    public void setNewClickToProcess(boolean newClickToProcess) {
+        this.newClickToProcess = newClickToProcess;
     }
 
     public boolean isNewNavigationClick() {

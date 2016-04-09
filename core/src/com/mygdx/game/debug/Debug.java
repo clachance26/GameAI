@@ -26,58 +26,8 @@ public class Debug {
     public void printApplicationHeader() {
 
         StringBuilder sb = new StringBuilder();
-        sb.append("Application States:\n");
-        sb.append("Evaluate Sensors (e)\n");
-        sb.append("Seek (s)\n");
-        sb.append("Display A* Shortest Path (d)\n");
-        sb.append("Navigate A* Shortest Path (a)\n");
-        sb.append("\nCurrent Mode: " + ApplicationModeSingleton.getInstance().getApplicationMode() + "\n\n");
-        sb.append("Press \"n\" to show navigation nodes\n");
-        System.out.println(sb);
-    }
-
-    public void printAppModeChange() {
-        System.out.println("\nCurrent Mode: " + ApplicationModeSingleton.getInstance().getApplicationMode() + "\n");
-    }
-
-    /**
-     * Prints the sensor output
-     */
-    public void printSensorOutput() {
-
-        Character character = gameAI.getCharacter();
-        StringBuilder sb = new StringBuilder();
-        sb.append("\n\n");
-        sb.append("Subject\t\tPosition: " + character.getPosition() + "\tHeading: " + character.getAngle() + "\n");
-        sb.append("-----------------------------------------------------------------------------\n");
-
-        sb.append("Wall Sensors\n");
-        for (WallSensor wallSensor : character.getWallSensors()) {
-            sb.append(wallSensor.getName() + "\t\t");
-            if (wallSensor.getDistToClosestObject() >= 0) {
-                sb.append(String.format("%.4f", wallSensor.getDistToClosestObject()) + "\n");
-            }
-            else {
-                sb.append("-\n");
-            }
-        }
-
-        sb.append("\n");
-        sb.append("Adjacent Agents\n");
-        int count = 1;
-        for (AdjacentObject adjacentObject: character.getAaSensor().getAdjacentObjects()) {
-            sb.append(count + ") Distance: " + String.format("%.4f", adjacentObject.getDist()) + "\t\tHeading: "
-                    + String.format("%.4f",adjacentObject.getDegrees()) + "\n");
-            count++;
-        }
-
-        sb.append("\n");
-        sb.append("Pie Slice Sensor\n");
-        for (PieSliceResults results : character.getPsSensor().getResults()) {
-            sb.append("Range: " + String.format("%3d", results.getDegreesMin()) + "  -  " + String.format("%3d", results.getDegreesMax()) +
-                      "\t\tActivation Level: " + results.getCount() + "\n");
-        }
-
+        sb.append("Welcome to Overrun\n");
+        sb.append("Begin by placing your 3 black holes\n");
         System.out.println(sb);
     }
 

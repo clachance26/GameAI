@@ -5,7 +5,8 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 
 /**
- * Created by Christopher on 4/8/2016.
+ * The abstract class that all game objects extend
+ * This is used to store the basic fields that all game objects have in common (such as dimensions, position, and velocity)
  */
 public abstract class GameObject {
 

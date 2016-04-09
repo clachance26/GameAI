@@ -13,18 +13,22 @@ import com.mygdx.game.RenderedObject;
  */
 public class Feeder extends GameObject implements RenderedObject {
 
+    //Image used for Feeder texture
+    private static final String IMAGE_NAME = "feeder.png";
+    private static final int WIDTH  = 25;
+    private static final int HEIGHT  = 25;
+
     private FeederBreedEnum breed;
 
-    public Feeder(String imageName, SpriteBatch batch, float x, float y, float ang, int width, int height, FeederBreedEnum breed) {
+    public Feeder(SpriteBatch batch, float x, float y, float ang, FeederBreedEnum breed) {
 
-        super(imageName, batch, x, y, ang, width, height);
+        super(IMAGE_NAME, batch, x, y, ang, WIDTH, HEIGHT);
         this.breed = breed;
     }
 
     @Override
     public void draw() {
         batch.draw(texture, position.x, position.y);
-
     }
 
     public enum FeederBreedEnum{

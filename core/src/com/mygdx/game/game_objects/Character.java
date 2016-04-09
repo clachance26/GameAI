@@ -16,14 +16,15 @@ import java.util.List;
  */
 public class Character extends GameObject implements RenderedObject{
 
-    // Size of character.
-    private static final int SIZE  = 25;
-    // Speed factor.
+    //Image used for character texture
+    private static final String IMAGE_NAME = "character.png";
+    //Character attributes
+    private static final int WIDTH  = 25;
+    private static final int HEIGHT  = 25;
     private static final float SPEED_FACTOR = 0.1f;
-    //Max speed
     private static final float SPEED_LIMIT = 15;
-    // Decay speed.
     private static final float FORWARD_DECAY = 0.6f;
+
     private TextureRegion textureRegion;
 
     //Sensors
@@ -37,9 +38,9 @@ public class Character extends GameObject implements RenderedObject{
      * @param y position
      * @param ang its angle heading
      */
-    public Character(String imageName, SpriteBatch batch, float x, float y, float ang) {
+    public Character(SpriteBatch batch, float x, float y, float ang) {
 
-        super(imageName, batch, x, y, ang, SIZE, SIZE);
+        super(IMAGE_NAME, batch, x, y, ang, WIDTH, HEIGHT);
         textureRegion = new TextureRegion(texture);
 
         //Initialize sensors
@@ -55,7 +56,7 @@ public class Character extends GameObject implements RenderedObject{
      */
     @Override
     public void draw() {
-        batch.draw(textureRegion, position.x, position.y, SIZE / 2, SIZE / 2, SIZE, SIZE, 1, 1, (-ang + 270 % 360));
+        batch.draw(textureRegion, position.x, position.y, height / 2, width / 2, width, height, 1, 1, (-ang + 270 % 360));
     }
 
     /**
@@ -147,17 +148,17 @@ public class Character extends GameObject implements RenderedObject{
         if (position.x <= bounds.x) {
             velocity.x = 0;
             position.x = bounds.x;
-        } else if (position.x + SIZE >= bounds.width) {
+        } else if (position.x + width >= bounds.width) {
             velocity.x = 0;
-            position.x = bounds.width - SIZE - 1.0f;
+            position.x = bounds.width - width - 1.0f;
         }
 
         if (position.y <= bounds.y) {
             velocity.y = 0;
             position.y = bounds.y;
-        } else if (position.y + SIZE >= bounds.height) {
+        } else if (position.y + height >= bounds.height) {
             velocity.y = 0;
-            position.y = bounds.height - SIZE - 1.0f;
+            position.y = bounds.height - height - 1.0f;
         }
     }
 
@@ -167,7 +168,7 @@ public class Character extends GameObject implements RenderedObject{
     private boolean checkForCollisions(List<GameObject> objects) {
         for(GameObject object : objects)
         {
-            Rectangle characterBounds = new Rectangle(this.getPosition().x, this.getPosition().y, this.getSize(), this.getSize());
+            Rectangle characterBounds = new Rectangle(this.getPosition().x, this.getPosition().y, width, height);
             Rectangle objectBounds = new Rectangle(object.getPosition().x, object.getPosition().y, object.getWidth(), object.getHeight());
             if(Intersector.overlaps(characterBounds, objectBounds))
             {
@@ -180,13 +181,13 @@ public class Character extends GameObject implements RenderedObject{
     /**
      * performs a scan with the adjacent agent sensor
      */
-    private void evaluateAASensor(List<Feeder> objects) {aaSensor.detect(objects);
+    private void evaluateAASensor(List<GameObject> objects) {aaSensor.detect(objects);
     }
 
     /**
      * performs a scan with the wall sensor
      */
-    private void evaluateWallSensor(WallSensor wallSensor, List<Feeder> objects) {
+    private void evaluateWallSensor(WallSensor wallSensor, List<GameObject> objects) {
         wallSensor.Sense(objects);
     }
 
@@ -223,10 +224,6 @@ public class Character extends GameObject implements RenderedObject{
         ang = value;
     }
 
-    public float getSize() {
-        return SIZE;
-    }
-
     public List<WallSensor> getWallSensors() {
         return wallSensors;
     }
@@ -237,9 +234,5 @@ public class Character extends GameObject implements RenderedObject{
 
     public PieSliceSensor getPsSensor() {
         return psSensor;
-    }
-
-    public static int getSIZE() {
-        return SIZE;
     }
 }

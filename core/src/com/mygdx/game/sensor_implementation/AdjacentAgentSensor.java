@@ -2,7 +2,7 @@ package com.mygdx.game.sensor_implementation;
 
 import com.badlogic.gdx.math.Vector2;
 import com.mygdx.game.game_objects.Character;
-import com.mygdx.game.game_objects.Feeder;
+import com.mygdx.game.game_objects.GameObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,16 +26,16 @@ public class AdjacentAgentSensor {
      * called by the character when it wants to scan surroundings
      * @param objects list of object in the game
      */
-    public void detect(List<Feeder> objects) {
+    public void detect(List<GameObject> objects) {
 
         adjacentObjects = new ArrayList<>();
 
-        for(Feeder object : objects)
+        for(GameObject object : objects)
         {
 //            if(object.getIsAgent())
 //            {
                 adjacent.set(object.getPosition().x + (object.getWidth()/2), object.getPosition().y + (object.getHeight()/2));
-                characterCenter.set(character.getPosition().x + (character.getSize()/2), character.getPosition().y + (character.getSize()/2));
+                characterCenter.set(character.getPosition().x + (character.getWidth()/2), character.getPosition().y + (character.getHeight()/2));
                 if(adjacent.dst(character.getPosition()) < RANGE)
                 {
                     double degrees = Math.atan2(

@@ -16,7 +16,7 @@ public class Seek {
     public static void seek(Character character, Vector2 targetPosition, List objects) {
 
         Vector2 characterPosition = new Vector2(character.getPosition());
-        characterPosition.add(character.getSize() / 2, character.getSize() / 2);
+        characterPosition.add(character.getWidth() / 2, character.getHeight() / 2);
         done = false;
 
         if (Math.abs(characterPosition.dst2(targetPosition)) > 15) {

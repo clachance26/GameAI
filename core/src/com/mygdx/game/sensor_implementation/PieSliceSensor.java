@@ -43,7 +43,7 @@ public class PieSliceSensor {
 //            if(object.getIsAgent())
 //            {
                 adjacent.set(object.getPosition().x + (object.getWidth()/2), object.getPosition().y + (object.getHeight()/2));
-                characterCenter.set(character.getPosition().x + (character.getSize()/2), character.getPosition().y + (character.getSize()/2));
+                characterCenter.set(character.getPosition().x + (character.getWidth()/2), character.getPosition().y + (character.getHeight()/2));
                 //TODO: Probably should use characterCenter here
                 if(adjacent.dst(character.getPosition()) < RANGE)
                 {

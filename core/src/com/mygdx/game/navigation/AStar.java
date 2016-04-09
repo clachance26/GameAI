@@ -20,7 +20,7 @@ public class AStar {
     private static Deque<NavigationNode> shortestPath;
     private static PriorityQueue<NavigationNode> searchQueue;
     private static Integer searchQueueCounter = 0;
-    private static List<GameObject> agentList;
+    private static List<GameObject> gameObjects;
     private static NavigationNode start, destination, current, left, right, up, down;
     private static Debug debug;
     //The size of the bounds used to determine if a node is reachable (if it does not intersect with any game objects
@@ -32,8 +32,6 @@ public class AStar {
         shortestPath = new LinkedBlockingDeque<>();
         searchQueue = new PriorityQueue<>();
         int tempIndex1, tempIndex2;
-
-        initializeNavigationGraph();
 
         tempIndex1 = NavigationNode.getNodeIndexFromLocation(startPoint.x);
         tempIndex2 = NavigationNode.getNodeIndexFromLocation(startPoint.y);
@@ -129,14 +127,6 @@ public class AStar {
         return true;
     }
 
-    private static void initializeNavigationGraph() {
-        for (int i=0; i<45; i++) {
-            for (int j=0; j<30; j++) {
-                navigationGraph[i][j] = new NavigationNode(new Point((i*20)+10, (j*20)+10));
-            }
-        }
-    }
-
     private static void initializeAdjacentNodes() {
 
         if (x > 0) {
@@ -169,7 +159,7 @@ public class AStar {
         Rectangle nodeBounds = new Rectangle(node.getLocation().x - BUFFER_DISTANCE/2,
                                             node.getLocation().y - BUFFER_DISTANCE/2,
                                             BUFFER_DISTANCE, BUFFER_DISTANCE);
-        for(GameObject agent : agentList)
+        for(GameObject agent : gameObjects)
         {
             Rectangle objectBounds = new Rectangle((int) agent.getPosition().x, (int) agent.getPosition().y, agent.getWidth(), agent.getHeight());
             if(Intersector.overlaps(nodeBounds, objectBounds))
@@ -211,8 +201,8 @@ public class AStar {
         return shortestPath;
     }
 
-    public static void setAgentList(List<GameObject> agentList) {
-        AStar.agentList = agentList;
+    public static void setGameObjects(List<GameObject> gameObjects) {
+        AStar.gameObjects = gameObjects;
     }
 
     public static void setDebug(Debug debug) {

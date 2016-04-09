@@ -2,6 +2,7 @@ package com.mygdx.game;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.mygdx.game.application_mode.ApplicationModeEnum;
 import com.mygdx.game.application_mode.ApplicationModeSingleton;
 import com.mygdx.game.navigation.AStar;
 import com.mygdx.game.navigation.NavigationNode;
@@ -40,7 +41,7 @@ public class Background implements RenderedObject {
 
         batch.draw(backgroundTexture, 0, 0);
 
-        if (inputProcessor.isShowNavigationNodes()) {
+        if (inputProcessor.isShowNavigationNodes() && ApplicationModeSingleton.getInstance().getApplicationMode().equals(ApplicationModeEnum.PLAY)) {
             //Draw each node on the background
             for (int i=0; i<backgroundTexture.getWidth(); i+=navNodeTexture.getWidth()) {
                 for (int j=0; j<backgroundTexture.getHeight(); j+=navNodeTexture.getHeight()) {

@@ -5,7 +5,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.collision.Ray;
 import com.mygdx.game.game_objects.Character;
-import com.mygdx.game.game_objects.Feeder;
+import com.mygdx.game.game_objects.GameObject;
 
 import java.util.List;
 
@@ -32,14 +32,14 @@ public class WallSensor {
      * Sense will do the wall sensing for the given character and offset angle
      * @param objects - the objects in the game world
      */
-    public void Sense(List<Feeder> objects) {
+    public void Sense(List<GameObject> objects) {
 
         //To implement the wall sensor, we are going to create a ray
         //The ray will start at the center of the character and extend at a specified offset angle with respect to the character
         //The exact angle the ray will move is the heading of the character + the angle passed in
         //We want the ray to start at the center of the character so we will use its size to find the middle
-        Vector3 characterCenter = new Vector3(character.getPosition().x + (character.getSize()/2),
-                character.getPosition().y + (character.getSize()/2), 0);
+        Vector3 characterCenter = new Vector3(character.getPosition().x + (character.getWidth()/2),
+                character.getPosition().y + (character.getHeight()/2), 0);
 
 
         //To find the direction of the ray, we just have to find the cos(angle) and sin(angle)
@@ -53,7 +53,7 @@ public class WallSensor {
 
         distToClosestObject = Float.MAX_VALUE;
 
-        for (Feeder object : objects) {
+        for (GameObject object : objects) {
 //            if(!object.getIsAgent()){
                 boolean intersected;
 
