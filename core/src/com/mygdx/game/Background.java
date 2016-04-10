@@ -28,7 +28,7 @@ public class Background implements RenderedObject {
 
     public Background(GameAI gameAI) {
 
-        backgroundTexture = new Texture("background.png");
+        backgroundTexture = new Texture("background2.png");
         navNodeTexture = new Texture("navNode.png");
         pathNodeTexture = new Texture("pathNode.png");
         destinationNodeTexture = new Texture("destinationNode.png");

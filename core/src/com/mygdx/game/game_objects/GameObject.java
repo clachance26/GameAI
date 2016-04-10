@@ -22,9 +22,9 @@ public abstract class GameObject {
     // Velocity of the character
     protected Vector2 velocity;
     // Current angle of the object
-    protected float ang;
+    protected float angle;
 
-    public GameObject(String imageName, SpriteBatch batch, float x, float y, float ang, int width, int height) {
+    public GameObject(String imageName, SpriteBatch batch, float x, float y, float angle, int width, int height) {
 
         //Get the sprite batch so we can draw this object later
         this.batch = batch;
@@ -33,7 +33,7 @@ public abstract class GameObject {
 
         // Set the position of this character
         this.position = new Vector2(x,y);
-        this.ang = ang;
+        this.angle = angle;
         this.height = height;
         this.width = width;
 
@@ -81,12 +81,12 @@ public abstract class GameObject {
         this.position = position;
     }
 
-    public float getAng() {
-        return ang;
+    public float getAngle() {
+        return angle;
     }
 
-    public void setAng(float ang) {
-        this.ang = ang;
+    public void setAngle(float angle) {
+        this.angle = angle;
     }
 
     public Vector2 getVelocity() {

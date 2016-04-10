@@ -56,7 +56,7 @@ public class Character extends GameObject implements RenderedObject{
      */
     @Override
     public void draw() {
-        batch.draw(textureRegion, position.x, position.y, height / 2, width / 2, width, height, 1, 1, (-ang + 270 % 360));
+        batch.draw(textureRegion, position.x, position.y, height / 2, width / 2, width, height, 1, 1, (-angle + 270 % 360));
     }
 
     /**
@@ -71,8 +71,8 @@ public class Character extends GameObject implements RenderedObject{
         processTurn(turn);
         if (forward != 0.0f) {
             // Forward key pressed. increase speed.
-            velocity.add(forward * (float)Math.cos(Math.toRadians (ang)) * SPEED_FACTOR,
-                    forward * (float)-Math.sin (Math.toRadians (ang)) * SPEED_FACTOR);
+            velocity.add(forward * (float)Math.cos(Math.toRadians (angle)) * SPEED_FACTOR,
+                    forward * (float)-Math.sin (Math.toRadians (angle)) * SPEED_FACTOR);
             if (velocity.x > SPEED_LIMIT) {
                 velocity.x = SPEED_LIMIT;
             }
@@ -90,10 +90,10 @@ public class Character extends GameObject implements RenderedObject{
             velocity.scl(FORWARD_DECAY);
         }
 
-        if (ang > 360)
-            ang -= 360;
-        if (ang < 0)
-            ang += 360;
+        if (angle > 360)
+            angle -= 360;
+        if (angle < 0)
+            angle += 360;
 
         move(velocity, objects);
         adjustToBounds(bounds);
@@ -141,7 +141,7 @@ public class Character extends GameObject implements RenderedObject{
     }
 
     private void processTurn(float turn) {
-		this.ang -= turn*5;
+		this.angle -= turn*5;
     }
 
     private void adjustToBounds(Rectangle bounds) {
@@ -198,30 +198,6 @@ public class Character extends GameObject implements RenderedObject{
         psSensor.setDegreesMin(min);
         psSensor.setDegreesMax(max);
         psSensor.detect(objects);
-    }
-
-    public Vector2 getPosition() {
-        return position;
-    }
-
-    public void setPosition(Vector2 value) {
-        position.set(value);
-    }
-
-    public Vector2 getVelocity() {
-        return velocity;
-    }
-
-    public void setVelocity(Vector2 value) {
-        velocity.set(value);
-    }
-
-    public float getAngle() {
-        return ang;
-    }
-
-    public void setAngle(float value) {
-        ang = value;
     }
 
     public List<WallSensor> getWallSensors() {
