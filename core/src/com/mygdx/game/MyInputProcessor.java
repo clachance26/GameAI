@@ -21,10 +21,11 @@ public class MyInputProcessor implements InputProcessor {
     //The locations of a mouse click
     private Point click = new Point();
     private Debug debug;
+    private boolean splashScreenContinue = false;
     private boolean newClickToProcess = false;
-    private boolean newNavigationClick = false;
     //Whether we want to display the navigation nodes on the screen
     private boolean showNavigationNodes = false;
+    private boolean showAlternateNavigationNodes = false;
 
     public MyInputProcessor(Debug debug) {
         this.debug = debug;
@@ -32,6 +33,17 @@ public class MyInputProcessor implements InputProcessor {
 
     @Override
     public boolean keyDown(int keycode) {
+
+        //When in the splash screen, the user can press any key to continue to the game
+        //GameAI will actually do the transition into the setup mode
+        if (ApplicationModeSingleton.getInstance().getApplicationMode().equals(ApplicationModeEnum.SPLASH_SCREEN)) {
+            //Reset the input just in case the user performed a click or other input while in the splash screen
+            newClickToProcess = false;
+            showNavigationNodes = false;
+            showAlternateNavigationNodes = false;
+
+            splashScreenContinue = true;
+        }
 
         switch (keycode) {
 
@@ -74,6 +86,33 @@ public class MyInputProcessor implements InputProcessor {
             case Input.Keys.N:
                 showNavigationNodes = !showNavigationNodes;
                 return true;
+
+            case Input.Keys.M:
+                showAlternateNavigationNodes = !showAlternateNavigationNodes;
+                return true;
+
+            case Input.Keys.NUM_1:
+                if (ApplicationModeSingleton.getInstance().getApplicationMode().equals(ApplicationModeEnum.SETUP)) {
+                    ApplicationModeSingleton.getInstance().setGameDifficulty(Difficulty.EASY);
+                    return true;
+                }
+            case Input.Keys.NUM_2:
+                if (ApplicationModeSingleton.getInstance().getApplicationMode().equals(ApplicationModeEnum.SETUP)) {
+                    ApplicationModeSingleton.getInstance().setGameDifficulty(Difficulty.MEDIUM);
+                    return true;
+                }
+
+            case Input.Keys.NUM_3:
+                if (ApplicationModeSingleton.getInstance().getApplicationMode().equals(ApplicationModeEnum.SETUP)) {
+                    ApplicationModeSingleton.getInstance().setGameDifficulty(Difficulty.HARD);
+                    return true;
+                }
+
+            case Input.Keys.NUM_4:
+                if (ApplicationModeSingleton.getInstance().getApplicationMode().equals(ApplicationModeEnum.SETUP)) {
+                    ApplicationModeSingleton.getInstance().setGameDifficulty(Difficulty.BRUTAL);
+                    return true;
+                }
         }
         return false;
     }
@@ -185,11 +224,11 @@ public class MyInputProcessor implements InputProcessor {
         this.newClickToProcess = newClickToProcess;
     }
 
-    public boolean isNewNavigationClick() {
-        return newNavigationClick;
+    public boolean isShowAlternateNavigationNodes() {
+        return showAlternateNavigationNodes;
     }
 
-    public void setNewNavigationClick(boolean newNavigationClick) {
-        this.newNavigationClick = newNavigationClick;
+    public boolean isSplashScreenContinue() {
+        return splashScreenContinue;
     }
 }

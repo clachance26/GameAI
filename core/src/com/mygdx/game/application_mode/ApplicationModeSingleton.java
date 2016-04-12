@@ -1,6 +1,7 @@
 package com.mygdx.game.application_mode;
 
 
+import com.mygdx.game.Difficulty;
 import com.mygdx.game.debug.Debug;
 
 /**
@@ -15,6 +16,7 @@ import com.mygdx.game.debug.Debug;
 public class ApplicationModeSingleton {
 
     private ApplicationModeEnum applicationMode;
+    private Difficulty gameDifficulty;
     private Debug debug;
 
 
@@ -34,6 +36,14 @@ public class ApplicationModeSingleton {
     public void setApplicationMode(ApplicationModeEnum applicationMode) {
 
         this.applicationMode = applicationMode;
+    }
+
+    public Difficulty getGameDifficulty() {
+        return gameDifficulty;
+    }
+
+    public void setGameDifficulty(Difficulty gameDifficulty) {
+        this.gameDifficulty = gameDifficulty;
     }
 
     public Debug getDebug() {

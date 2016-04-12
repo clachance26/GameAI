@@ -1,9 +1,9 @@
-package com.mygdx.game;
+package com.mygdx.game.rendered_objects;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.mygdx.game.application_mode.ApplicationModeEnum;
-import com.mygdx.game.application_mode.ApplicationModeSingleton;
+import com.mygdx.game.GameAI;
+import com.mygdx.game.MyInputProcessor;
 import com.mygdx.game.navigation.AStar;
 import com.mygdx.game.navigation.NavigationNode;
 
@@ -18,22 +18,25 @@ public class Background implements RenderedObject {
 
     private Texture backgroundTexture;
     private Texture navNodeTexture;
+    private Texture navNodeTexture2;
     private Texture pathNodeTexture;
     private Texture destinationNodeTexture;
     private SpriteBatch batch;
     private MyInputProcessor inputProcessor;
     //The actual game AI object is needed to get real time updates of the a star shortest path
     //and if the a star algorithm is done
-//    private GameAI gameAI;
+    private GameAI gameAI;
 
     public Background(GameAI gameAI) {
 
         backgroundTexture = new Texture("background2.png");
         navNodeTexture = new Texture("navNode.png");
+        navNodeTexture2 = new Texture("navNode2.png");
         pathNodeTexture = new Texture("pathNode.png");
         destinationNodeTexture = new Texture("destinationNode.png");
-        this.batch = gameAI.batch;
-        this.inputProcessor = gameAI.inputProcessor;
+        this.batch = gameAI.getBatch();
+        this.inputProcessor = gameAI.getInputProcessor();
+        this.gameAI = gameAI;
     }
 
     @Override
@@ -41,17 +44,13 @@ public class Background implements RenderedObject {
 
         batch.draw(backgroundTexture, 0, 0);
 
-        if (inputProcessor.isShowNavigationNodes() && ApplicationModeSingleton.getInstance().getApplicationMode().equals(ApplicationModeEnum.PLAY)) {
-            //Draw each node on the background
-            for (int i=0; i<backgroundTexture.getWidth(); i+=navNodeTexture.getWidth()) {
-                for (int j=0; j<backgroundTexture.getHeight(); j+=navNodeTexture.getHeight()) {
+        if (inputProcessor.isShowNavigationNodes()) {
 
-                    if (AStar.isNodeReachable(new NavigationNode(new Point(i+navNodeTexture.getWidth()/2,
-                                                                           j+navNodeTexture.getHeight()/2)))) {
-
-                        batch.draw(navNodeTexture, i, j);
-                    }
-                }
+            if (inputProcessor.isShowAlternateNavigationNodes()) {
+                gameAI.getNavigationGraph().drawGraph(batch, navNodeTexture2);
+            }
+            else{
+                gameAI.getNavigationGraph().drawGraph(batch, navNodeTexture);
             }
         }
 

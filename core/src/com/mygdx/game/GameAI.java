@@ -15,6 +15,8 @@ import com.mygdx.game.game_objects.GameObject;
 import com.mygdx.game.navigation.AStar;
 import com.mygdx.game.navigation.NavigationGraph;
 import com.mygdx.game.navigation.NavigationNode;
+import com.mygdx.game.rendered_objects.*;
+import com.mygdx.game.rendered_objects.SplashScreen;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -25,11 +27,13 @@ import java.util.List;
 public class GameAI extends ApplicationAdapter {
 
 	private static final int NUM_BLACK_HOLES = 3;
+	private static final
 
 	Rectangle bounds = new Rectangle(0, 0, 900, 600);
 	List<GameObject> gameObjects = new ArrayList<>();
 	List<RenderedObject> renderedObjects = new ArrayList<>();
 	SpriteBatch batch;
+	SplashScreen splashScreen;
 	Background background;
 	BlackHole[] blackHoles = new BlackHole[NUM_BLACK_HOLES];
 	int blackHoleIndex = 0;
@@ -51,7 +55,8 @@ public class GameAI extends ApplicationAdapter {
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
-		ApplicationModeSingleton.getInstance().setApplicationMode(ApplicationModeEnum.SETUP);
+		ApplicationModeSingleton.getInstance().setApplicationMode(ApplicationModeEnum.SPLASH_SCREEN);
+		ApplicationModeSingleton.getInstance().setGameDifficulty(Difficulty.EASY);
 
 		//Create the debug object
 		debug = new Debug(this);
@@ -66,18 +71,8 @@ public class GameAI extends ApplicationAdapter {
 		inputProcessor = new MyInputProcessor(debug);
 		Gdx.input.setInputProcessor(inputProcessor);
 
-		//Initialize the game objects
-		background = new Background(this);
-		character = new Character(batch, 800, 100, 270);
-
-		//Add all game components to the rendered object list to be drawn
-		renderedObjects.add(background);
-		renderedObjects.add(character);
-
-		//Create the Navigation Graph
-		navigationGraph = new NavigationGraph();
-		AStar.setNavigationGraph(navigationGraph.getGraph());
-		AStar.setGameObjects(gameObjects);
+		splashScreen = new SplashScreen(batch);
+		renderedObjects.add(splashScreen);
 	}
 
 	@Override
@@ -86,11 +81,24 @@ public class GameAI extends ApplicationAdapter {
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		batch.begin();
 
-		//This will move the character based on the user input
-		character.moveFromKeyboardControls(inputProcessor.getForward(), inputProcessor.getTurning(), bounds, gameObjects);
+		//Some core logic that we want to implement in all game modes other than the splash screen
+		if (!ApplicationModeSingleton.getInstance().getApplicationMode().equals(ApplicationModeEnum.SPLASH_SCREEN)) {
+
+			//Move the character based on the user input and update the navigation graph
+			character.moveFromKeyboardControls(inputProcessor.getForward(), inputProcessor.getTurning(), bounds, gameObjects);
+			navigationGraph.update(gameObjects, bounds);
+		}
 
 		//Perform actions based on current application mode
 		switch (ApplicationModeSingleton.getInstance().getApplicationMode()) {
+
+			case SPLASH_SCREEN:
+				//Transition to the setup mode after the user presses any key while in the splash screen mode
+				if (inputProcessor.isSplashScreenContinue()) {
+					initializeGame();
+					ApplicationModeSingleton.getInstance().setApplicationMode(ApplicationModeEnum.SETUP);
+				}
+				break;
 
 			case SETUP:
 				if (inputProcessor.isNewClickToProcess()) {
@@ -108,7 +116,9 @@ public class GameAI extends ApplicationAdapter {
 				break;
 
 			case PLAY:
-				//play code
+				for (int i=0; i<NUM_BLACK_HOLES; i++) {
+					blackHoles[i].performGravitationalPull(gameObjects);
+				}
 				break;
 		}
 
@@ -123,6 +133,28 @@ public class GameAI extends ApplicationAdapter {
 
 		batch.end();
 		renderCount++;
+	}
+
+	/**
+	 * This function is called immediately after the user navigates away from the splash screen
+	 * Here we create all of the necessary game components to start the game
+	 */
+	public void initializeGame() {
+
+		//Initialize the game objects
+		background = new Background(this);
+		character = new Character(batch, 800, 100, 270);
+
+		gameObjects.add(character);
+
+		//Add all game components to the rendered object list to be drawn
+		renderedObjects.add(background);
+		renderedObjects.add(character);
+
+		//Create the Navigation Graph
+		navigationGraph = new NavigationGraph();
+		AStar.setNavigationGraph(navigationGraph.getGraph());
+		AStar.setGameObjects(gameObjects);
 	}
 
 	/**
@@ -159,5 +191,17 @@ public class GameAI extends ApplicationAdapter {
 
 	public Character getCharacter() {
 		return character;
+	}
+
+	public SpriteBatch getBatch() {
+		return batch;
+	}
+
+	public MyInputProcessor getInputProcessor() {
+		return inputProcessor;
+	}
+
+	public NavigationGraph getNavigationGraph() {
+		return navigationGraph;
 	}
 }

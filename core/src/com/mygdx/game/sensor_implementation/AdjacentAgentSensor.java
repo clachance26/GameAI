@@ -12,18 +12,19 @@ import java.util.List;
  */
 public class AdjacentAgentSensor {
 
-    private static final int RANGE = 200;
-    private Character character;
+    private GameObject sensingObject;
     private Vector2 adjacent = new Vector2();
     private Vector2 characterCenter = new Vector2();
     private List<AdjacentObject> adjacentObjects;
+    private int range;
 
-    public AdjacentAgentSensor(Character character){
-        this.character = character;
+    public AdjacentAgentSensor(GameObject sensingObject, int range){
+        this.sensingObject = sensingObject;
+        this.range = range;
     }
 
     /**
-     * called by the character when it wants to scan surroundings
+     * called by the sensingObject when it wants to scan surroundings
      * @param objects list of object in the game
      */
     public void detect(List<GameObject> objects) {
@@ -35,24 +36,24 @@ public class AdjacentAgentSensor {
 //            if(object.getIsAgent())
 //            {
                 adjacent.set(object.getPosition().x + (object.getWidth()/2), object.getPosition().y + (object.getHeight()/2));
-                characterCenter.set(character.getPosition().x + (character.getWidth()/2), character.getPosition().y + (character.getHeight()/2));
-                if(adjacent.dst(character.getPosition()) < RANGE)
+                characterCenter.set(sensingObject.getPosition().x + (sensingObject.getWidth()/2), sensingObject.getPosition().y + (sensingObject.getHeight()/2));
+                if(adjacent.dst(sensingObject.getPosition()) < range)
                 {
                     double degrees = Math.atan2(
                             characterCenter.y - adjacent.y,
                             characterCenter.x - adjacent.x
                     ) * 180.0d / Math.PI;
                     degrees += 180;
-                    degrees += character.getAngle();
+                    degrees += sensingObject.getAngle();
                     if(degrees < 0)
                     {
                         degrees += 360;
                     }
                     degrees = degrees % 360;
 
-                    adjacentObjects.add(new AdjacentObject(degrees, character.getPosition().dst(adjacent)));
+                    adjacentObjects.add(new AdjacentObject(object, degrees, sensingObject.getPosition().dst(adjacent)));
 //                    System.out.println("Adjacent Agent detected at " + degrees + " degrees "
-//                            + character.getPosition().dst(adjacent) + " pixels away.");
+//                            + sensingObject.getPosition().dst(adjacent) + " pixels away.");
                 }
 //            }
         }

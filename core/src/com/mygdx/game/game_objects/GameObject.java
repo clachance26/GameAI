@@ -4,6 +4,8 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 
+import java.util.List;
+
 /**
  * The abstract class that all game objects extend
  * This is used to store the basic fields that all game objects have in common (such as dimensions, position, and velocity)
@@ -19,8 +21,6 @@ public abstract class GameObject {
 
     // Position of the object
     protected Vector2 position;
-    // Velocity of the character
-    protected Vector2 velocity;
     // Current angle of the object
     protected float angle;
 
@@ -36,9 +36,6 @@ public abstract class GameObject {
         this.angle = angle;
         this.height = height;
         this.width = width;
-
-        // Set starting velocity to 0;
-        velocity = new Vector2();
     }
 
     public int getHeight() {
@@ -87,13 +84,5 @@ public abstract class GameObject {
 
     public void setAngle(float angle) {
         this.angle = angle;
-    }
-
-    public Vector2 getVelocity() {
-        return velocity;
-    }
-
-    public void setVelocity(Vector2 velocity) {
-        this.velocity = velocity;
     }
 }

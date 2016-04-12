@@ -3,7 +3,7 @@ package com.mygdx.game.game_objects;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.*;
-import com.mygdx.game.RenderedObject;
+import com.mygdx.game.rendered_objects.RenderedObject;
 import com.mygdx.game.sensor_implementation.AdjacentAgentSensor;
 import com.mygdx.game.sensor_implementation.PieSliceSensor;
 import com.mygdx.game.sensor_implementation.WallSensor;
@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * The character is the movable agent that is controlled by the user
  */
-public class Character extends GameObject implements RenderedObject{
+public class Character extends Agent implements RenderedObject{
 
     //Image used for character texture
     private static final String IMAGE_NAME = "character.png";
@@ -23,7 +23,7 @@ public class Character extends GameObject implements RenderedObject{
     private static final int HEIGHT  = 25;
     private static final float SPEED_FACTOR = 0.1f;
     private static final float SPEED_LIMIT = 15;
-    private static final float FORWARD_DECAY = 0.6f;
+    private static final float FORWARD_DECAY = 0.9f;
 
     private TextureRegion textureRegion;
 
@@ -44,7 +44,7 @@ public class Character extends GameObject implements RenderedObject{
         textureRegion = new TextureRegion(texture);
 
         //Initialize sensors
-        aaSensor = new AdjacentAgentSensor(this);
+        aaSensor = new AdjacentAgentSensor(this, 200);
         wallSensors = new ArrayList<>();
         wallSensors.add(new WallSensor(0, this, "front"));
         wallSensors.add((new WallSensor(90, this, "right")));
@@ -67,12 +67,12 @@ public class Character extends GameObject implements RenderedObject{
      * @param bounds bounds of the game world (edges of the world)
      * @param objects game objects
      */
-    public void moveFromKeyboardControls(float forward, float turn, Rectangle bounds, List objects){
+    public void moveFromKeyboardControls(float forward, float turn, Rectangle bounds, List<GameObject> objects){
         processTurn(turn);
         if (forward != 0.0f) {
             // Forward key pressed. increase speed.
-            velocity.add(forward * (float)Math.cos(Math.toRadians (angle)) * SPEED_FACTOR,
-                    forward * (float)-Math.sin (Math.toRadians (angle)) * SPEED_FACTOR);
+            velocity.add(forward * (float) Math.cos(Math.toRadians(angle)) * SPEED_FACTOR,
+                    forward * (float) -Math.sin(Math.toRadians(angle)) * SPEED_FACTOR);
             if (velocity.x > SPEED_LIMIT) {
                 velocity.x = SPEED_LIMIT;
             }
@@ -99,7 +99,8 @@ public class Character extends GameObject implements RenderedObject{
         adjustToBounds(bounds);
     }
 
-    public void move(Vector2 vel, List objects) {
+    @Override
+    public void move(Vector2 vel, List<GameObject> objects) {
 
         // Move the character
         if(!checkForCollisions(objects)) {
@@ -125,7 +126,12 @@ public class Character extends GameObject implements RenderedObject{
         }
     }
 
-    public void evaluateSensors(List objects) {
+    @Override
+    public void moveFromGravity(Vector2 velocity, List<GameObject> objects) {
+        move(velocity, objects);
+    }
+
+    public void evaluateSensors(List<GameObject> objects) {
 
         evaluateAASensor(objects);
 
@@ -168,11 +174,12 @@ public class Character extends GameObject implements RenderedObject{
     private boolean checkForCollisions(List<GameObject> objects) {
         for(GameObject object : objects)
         {
-            Rectangle characterBounds = new Rectangle(this.getPosition().x, this.getPosition().y, width, height);
-            Rectangle objectBounds = new Rectangle(object.getPosition().x, object.getPosition().y, object.getWidth(), object.getHeight());
-            if(Intersector.overlaps(characterBounds, objectBounds))
-            {
-                return true;
+            if (!(object instanceof Character)) {
+                Rectangle characterBounds = new Rectangle(this.getPosition().x, this.getPosition().y, width, height);
+                Rectangle objectBounds = new Rectangle(object.getPosition().x, object.getPosition().y, object.getWidth(), object.getHeight());
+                if (Intersector.overlaps(characterBounds, objectBounds)) {
+                    return true;
+                }
             }
         }
         return false;

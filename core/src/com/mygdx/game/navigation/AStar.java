@@ -1,7 +1,5 @@
 package com.mygdx.game.navigation;
 
-import com.badlogic.gdx.math.Intersector;
-import com.badlogic.gdx.math.Rectangle;
 import com.mygdx.game.debug.Debug;
 import com.mygdx.game.game_objects.GameObject;
 
@@ -23,8 +21,6 @@ public class AStar {
     private static List<GameObject> gameObjects;
     private static NavigationNode start, destination, current, left, right, up, down;
     private static Debug debug;
-    //The size of the bounds used to determine if a node is reachable (if it does not intersect with any game objects
-    private static final int BUFFER_DISTANCE = 26;
     private static int x, y;
 
     public static Deque<NavigationNode> evaluateAStar(Point startPoint, Point destinationPoint) {
@@ -95,12 +91,11 @@ public class AStar {
             return false;
         }
 
-        if (!isNodeReachable(nodeToEvaluate)) {
-            nodeToEvaluate.setIsReachable(false);
+        if (!nodeToEvaluate.getIsValid()) {
             nodeToEvaluate.setEvaluated(true);
             return false;
         }
-        nodeToEvaluate.setIsReachable(true);
+        nodeToEvaluate.setIsValid(true);
 
         //This node is being evaluated by the current node from the while loop back in evaluateAStar
         //If this node has not already been evaluated by a different node and is reachable, we set its previous node
@@ -152,22 +147,6 @@ public class AStar {
         } else {
             down = null;
         }
-    }
-
-    public static boolean isNodeReachable(NavigationNode node) {
-
-        Rectangle nodeBounds = new Rectangle(node.getLocation().x - BUFFER_DISTANCE/2,
-                                            node.getLocation().y - BUFFER_DISTANCE/2,
-                                            BUFFER_DISTANCE, BUFFER_DISTANCE);
-        for(GameObject agent : gameObjects)
-        {
-            Rectangle objectBounds = new Rectangle((int) agent.getPosition().x, (int) agent.getPosition().y, agent.getWidth(), agent.getHeight());
-            if(Intersector.overlaps(nodeBounds, objectBounds))
-            {
-                return false;
-            }
-        }
-        return true;
     }
 
     private static void traceBackShortestPath() {

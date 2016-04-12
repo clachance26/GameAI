@@ -1,7 +1,10 @@
 package com.mygdx.game.game_objects;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.mygdx.game.RenderedObject;
+import com.badlogic.gdx.math.Vector2;
+import com.mygdx.game.rendered_objects.RenderedObject;
+
+import java.util.List;
 
 /**
  * This is a type of alien called a feeder
@@ -11,7 +14,7 @@ import com.mygdx.game.RenderedObject;
  *      - navigate using A* from their spawn point to their nest
  *      - will attack the character if it gets within a certain range
  */
-public class Feeder extends GameObject implements RenderedObject {
+public class Feeder extends Agent implements RenderedObject {
 
     //Image used for Feeder texture
     private static final String IMAGE_NAME = "feeder.png";
@@ -29,6 +32,16 @@ public class Feeder extends GameObject implements RenderedObject {
     @Override
     public void draw() {
         batch.draw(texture, position.x, position.y);
+    }
+
+    @Override
+    void move(Vector2 vel, List<GameObject> objects) {
+
+    }
+
+    @Override
+    void moveFromGravity(Vector2 velocity, List<GameObject> objects) {
+
     }
 
     public enum FeederBreedEnum{
