@@ -1,6 +1,5 @@
 package com.mygdx.game.navigation;
 import java.awt.Point;
-import java.sql.Timestamp;
 import java.util.Comparator;
 
 /**
@@ -16,7 +15,11 @@ public class NavigationNode implements Comparator<NavigationNode>, Comparable<Na
     //Needed in the A Star algorithm to break ties based on most recently added
     private Integer aStarCounter;
     private Boolean startNode = false;
-    private Boolean isReachable = true;
+    //A node is invalid if it is within a given buffer distance of a game object
+    //This buffer distance is the distance from the center of the character to its edges
+    //Using this buffer distance, a node is valid if the character can move its center to the node without
+    //colliding with anything
+    private Boolean isValid = true;
     private Boolean evaluated = false;
 
     public NavigationNode(Point location) {
@@ -94,12 +97,12 @@ public class NavigationNode implements Comparator<NavigationNode>, Comparable<Na
         this.startNode = startNode;
     }
 
-    public Boolean getIsReachable() {
-        return isReachable;
+    public Boolean getIsValid() {
+        return isValid;
     }
 
-    public void setIsReachable(Boolean isReachable) {
-        this.isReachable = isReachable;
+    public void setIsValid(Boolean isValid) {
+        this.isValid = isValid;
     }
 
     public Boolean isEvaluated() {
