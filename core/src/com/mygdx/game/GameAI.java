@@ -34,9 +34,11 @@ public class GameAI extends ApplicationAdapter {
 	List<RenderedObject> renderedObjects = new ArrayList<>();
 	SpriteBatch batch;
 	SplashScreen splashScreen;
+	GameOverScreen gameOverScreen;
 	Background background;
-	BlackHole[] blackHoles = new BlackHole[NUM_BLACK_HOLES];
-	int blackHoleIndex = 0;
+	BlackHole[] blackHoles;
+	int blackHoleIndex;
+	boolean gameOverScreenInitialized = false;
 
 	Character character;
 
@@ -95,6 +97,7 @@ public class GameAI extends ApplicationAdapter {
 			case SPLASH_SCREEN:
 				//Transition to the setup mode after the user presses any key while in the splash screen mode
 				if (inputProcessor.isSplashScreenContinue()) {
+					inputProcessor.setSplashScreenContinue(false);
 					initializeGame();
 					ApplicationModeSingleton.getInstance().setApplicationMode(ApplicationModeEnum.SETUP);
 				}
@@ -118,6 +121,21 @@ public class GameAI extends ApplicationAdapter {
 			case PLAY:
 				for (int i=0; i<NUM_BLACK_HOLES; i++) {
 					blackHoles[i].performGravitationalPull(gameObjects);
+				}
+				break;
+
+			case GAME_OVER:
+				//Only need to initialize the screen once
+				if (!gameOverScreenInitialized) {
+					gameOverScreen = new GameOverScreen(batch);
+					renderedObjects.add(gameOverScreen);
+					gameOverScreenInitialized = true;
+				}
+
+				if (inputProcessor.isGameOverScreenContinue()) {
+					inputProcessor.setGameOverScreenContinue(false);
+					resetGame();
+					ApplicationModeSingleton.getInstance().setApplicationMode(ApplicationModeEnum.SETUP);
 				}
 				break;
 		}
@@ -155,6 +173,16 @@ public class GameAI extends ApplicationAdapter {
 		navigationGraph = new NavigationGraph();
 		AStar.setNavigationGraph(navigationGraph.getGraph());
 		AStar.setGameObjects(gameObjects);
+
+		blackHoles = new BlackHole[NUM_BLACK_HOLES];
+		blackHoleIndex = 0;
+	}
+
+	//Todo: finish all of this logic
+	private void resetGame() {
+		renderedObjects = new ArrayList<>();
+		gameObjects = new ArrayList<>();
+		initializeGame();
 	}
 
 	/**

@@ -22,6 +22,7 @@ public class MyInputProcessor implements InputProcessor {
     private Point click = new Point();
     private Debug debug;
     private boolean splashScreenContinue = false;
+    private boolean gameOverScreenContinue = false;
     private boolean newClickToProcess = false;
     //Whether we want to display the navigation nodes on the screen
     private boolean showNavigationNodes = false;
@@ -34,85 +35,74 @@ public class MyInputProcessor implements InputProcessor {
     @Override
     public boolean keyDown(int keycode) {
 
-        //When in the splash screen, the user can press any key to continue to the game
-        //GameAI will actually do the transition into the setup mode
-        if (ApplicationModeSingleton.getInstance().getApplicationMode().equals(ApplicationModeEnum.SPLASH_SCREEN)) {
-            //Reset the input just in case the user performed a click or other input while in the splash screen
-            newClickToProcess = false;
-            showNavigationNodes = false;
-            showAlternateNavigationNodes = false;
+        if (!ApplicationModeSingleton.getInstance().getApplicationMode().equals(ApplicationModeEnum.SPLASH_SCREEN) ||
+                !ApplicationModeSingleton.getInstance().getApplicationMode().equals(ApplicationModeEnum.GAME_OVER)) {
 
-            splashScreenContinue = true;
-        }
+            switch (keycode) {
 
-        switch (keycode) {
-
-            case Input.Keys.UP:
-                if (forward == -1) {
-                    forward = 0;
-                }
-                else {
-                    forward = 1;
-                }
-                return true;
-
-            case Input.Keys.DOWN:
-                if (forward == 1) {
-                    forward = 0;
-                }
-                else {
-                    forward = -1;
-                }
-                return true;
-
-            case Input.Keys.LEFT:
-                if (turning == -1) {
-                    turning = 0;
-                }
-                else {
-                    turning = 1;
-                }
-                return true;
-
-            case Input.Keys.RIGHT:
-                if (turning == 1) {
-                    turning = 0;
-                }
-                else {
-                    turning = -1;
-                }
-                return true;
-
-            case Input.Keys.N:
-                showNavigationNodes = !showNavigationNodes;
-                return true;
-
-            case Input.Keys.M:
-                showAlternateNavigationNodes = !showAlternateNavigationNodes;
-                return true;
-
-            case Input.Keys.NUM_1:
-                if (ApplicationModeSingleton.getInstance().getApplicationMode().equals(ApplicationModeEnum.SETUP)) {
-                    ApplicationModeSingleton.getInstance().setGameDifficulty(Difficulty.EASY);
+                case Input.Keys.UP:
+                    if (forward == -1) {
+                        forward = 0;
+                    } else {
+                        forward = 1;
+                    }
                     return true;
-                }
-            case Input.Keys.NUM_2:
-                if (ApplicationModeSingleton.getInstance().getApplicationMode().equals(ApplicationModeEnum.SETUP)) {
-                    ApplicationModeSingleton.getInstance().setGameDifficulty(Difficulty.MEDIUM);
-                    return true;
-                }
 
-            case Input.Keys.NUM_3:
-                if (ApplicationModeSingleton.getInstance().getApplicationMode().equals(ApplicationModeEnum.SETUP)) {
-                    ApplicationModeSingleton.getInstance().setGameDifficulty(Difficulty.HARD);
+                case Input.Keys.DOWN:
+                    if (forward == 1) {
+                        forward = 0;
+                    } else {
+                        forward = -1;
+                    }
                     return true;
-                }
 
-            case Input.Keys.NUM_4:
-                if (ApplicationModeSingleton.getInstance().getApplicationMode().equals(ApplicationModeEnum.SETUP)) {
-                    ApplicationModeSingleton.getInstance().setGameDifficulty(Difficulty.BRUTAL);
+                case Input.Keys.LEFT:
+                    if (turning == -1) {
+                        turning = 0;
+                    } else {
+                        turning = 1;
+                    }
                     return true;
-                }
+
+                case Input.Keys.RIGHT:
+                    if (turning == 1) {
+                        turning = 0;
+                    } else {
+                        turning = -1;
+                    }
+                    return true;
+
+                case Input.Keys.N:
+                    showNavigationNodes = !showNavigationNodes;
+                    return true;
+
+                case Input.Keys.M:
+                    showAlternateNavigationNodes = !showAlternateNavigationNodes;
+                    return true;
+
+                case Input.Keys.NUM_1:
+                    if (ApplicationModeSingleton.getInstance().getApplicationMode().equals(ApplicationModeEnum.SETUP)) {
+                        ApplicationModeSingleton.getInstance().setGameDifficulty(Difficulty.EASY);
+                        return true;
+                    }
+                case Input.Keys.NUM_2:
+                    if (ApplicationModeSingleton.getInstance().getApplicationMode().equals(ApplicationModeEnum.SETUP)) {
+                        ApplicationModeSingleton.getInstance().setGameDifficulty(Difficulty.MEDIUM);
+                        return true;
+                    }
+
+                case Input.Keys.NUM_3:
+                    if (ApplicationModeSingleton.getInstance().getApplicationMode().equals(ApplicationModeEnum.SETUP)) {
+                        ApplicationModeSingleton.getInstance().setGameDifficulty(Difficulty.HARD);
+                        return true;
+                    }
+
+                case Input.Keys.NUM_4:
+                    if (ApplicationModeSingleton.getInstance().getApplicationMode().equals(ApplicationModeEnum.SETUP)) {
+                        ApplicationModeSingleton.getInstance().setGameDifficulty(Difficulty.BRUTAL);
+                        return true;
+                    }
+            }
         }
         return false;
     }
@@ -125,8 +115,7 @@ public class MyInputProcessor implements InputProcessor {
             case Input.Keys.UP:
                 if (forward == 0) {
                     forward = -1;
-                }
-                else {
+                } else {
                     forward = 0;
                 }
                 return true;
@@ -134,8 +123,7 @@ public class MyInputProcessor implements InputProcessor {
             case Input.Keys.DOWN:
                 if (forward == 0) {
                     forward = 1;
-                }
-                else {
+                } else {
                     forward = 0;
                 }
                 return true;
@@ -143,8 +131,7 @@ public class MyInputProcessor implements InputProcessor {
             case Input.Keys.LEFT:
                 if (turning == 0) {
                     turning = -1;
-                }
-                else {
+                } else {
                     turning = 0;
                 }
                 return true;
@@ -152,13 +139,11 @@ public class MyInputProcessor implements InputProcessor {
             case Input.Keys.RIGHT:
                 if (turning == 0) {
                     turning = 1;
-                }
-                else {
+                } else {
                     turning = 0;
                 }
                 return true;
         }
-
 
         return false;
     }
@@ -170,6 +155,15 @@ public class MyInputProcessor implements InputProcessor {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+
+        if (ApplicationModeSingleton.getInstance().getApplicationMode().equals(ApplicationModeEnum.SPLASH_SCREEN)) {
+            splashScreenContinue = true;
+            return false;
+        }
+        if (ApplicationModeSingleton.getInstance().getApplicationMode().equals(ApplicationModeEnum.GAME_OVER)) {
+            gameOverScreenContinue = true;
+            return false;
+        }
 
         //This listener has the game world origin at the top left while the LibGDX spritebatch draw function has it in the bottom left
         //So we must convert the y values to start at the bottom (using the height of the game as 600)
@@ -230,5 +224,17 @@ public class MyInputProcessor implements InputProcessor {
 
     public boolean isSplashScreenContinue() {
         return splashScreenContinue;
+    }
+
+    public void setSplashScreenContinue(boolean splashScreenContinue) {
+        this.splashScreenContinue = splashScreenContinue;
+    }
+
+    public boolean isGameOverScreenContinue() {
+        return gameOverScreenContinue;
+    }
+
+    public void setGameOverScreenContinue(boolean gameOverScreenContinue) {
+        this.gameOverScreenContinue = gameOverScreenContinue;
     }
 }

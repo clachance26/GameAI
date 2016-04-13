@@ -23,10 +23,10 @@ public class BlackHole extends GameObject implements RenderedObject{
     //Bounds for the texture of the black hole (used to draw it)
 //    private static final int TEXTURE_WIDTH   = 100;
 //    private static final int TEXTURE_HEIGHT  = 76;
-    //How strong the gravitational pull of the black hole is
-    private static final float GRAVITATIONAL_PULL_FACTOR = 50;
-    private static final int GRAVITATIONAL_RANGE = 100;
 
+    //How strong the gravitational pull of the black hole is
+    private float gravitationalPullFactor = 35;
+    private int gravitationalRange = 150;
 
     //Used for detecting nearby objects to add gravitational pull to
     private AdjacentAgentSensor adjacentAgentSensor;
@@ -34,7 +34,7 @@ public class BlackHole extends GameObject implements RenderedObject{
     public BlackHole(SpriteBatch batch, float x, float y, float ang){
 
         super(IMAGE_NAME, batch, x, y, ang, WIDTH, HEIGHT);
-        adjacentAgentSensor = new AdjacentAgentSensor(this, GRAVITATIONAL_RANGE);
+        adjacentAgentSensor = new AdjacentAgentSensor(this, gravitationalRange);
     }
 
     @Override
@@ -61,7 +61,7 @@ public class BlackHole extends GameObject implements RenderedObject{
                 objectPosition.add(detectedObject.getWidth() / 2, detectedObject.getHeight() / 2);
                 blackHolePosition.add(this.getWidth() / 2, this.getHeight() / 2);
 
-                gravitationalPullStrength = GRAVITATIONAL_PULL_FACTOR / (float) (adjacentObject.getDist());
+                gravitationalPullStrength = gravitationalPullFactor / (float) (adjacentObject.getDist());
 
                 Vector2 gravitationalPull = new Vector2(blackHolePosition);
                 gravitationalPull.sub(objectPosition).nor();

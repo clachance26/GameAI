@@ -3,6 +3,8 @@ package com.mygdx.game.game_objects;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.*;
+import com.mygdx.game.application_mode.ApplicationModeEnum;
+import com.mygdx.game.application_mode.ApplicationModeSingleton;
 import com.mygdx.game.rendered_objects.RenderedObject;
 import com.mygdx.game.sensor_implementation.AdjacentAgentSensor;
 import com.mygdx.game.sensor_implementation.PieSliceSensor;
@@ -26,6 +28,7 @@ public class Character extends Agent implements RenderedObject{
     private static final float FORWARD_DECAY = 0.9f;
 
     private TextureRegion textureRegion;
+    private GameObject collisionObject;
 
     //Sensors
     private PieSliceSensor psSensor = new PieSliceSensor(this, 0, 0);
@@ -107,22 +110,30 @@ public class Character extends Agent implements RenderedObject{
             this.position.add(vel);
         }
         else{
-            vel.x = vel.x*-2;
-            vel.y = vel.y*-2;
-            if (vel.x > SPEED_LIMIT) {
-                vel.x = SPEED_LIMIT;
+            //If we are playing the game and we collide with a black hole or an alien, we lose
+            if (ApplicationModeSingleton.getInstance().getApplicationMode().equals(ApplicationModeEnum.PLAY) &&
+                    (collisionObject instanceof BlackHole ||
+                     collisionObject instanceof Hunter ||
+                     collisionObject instanceof Feeder)) {
+                ApplicationModeSingleton.getInstance().setApplicationMode(ApplicationModeEnum.GAME_OVER);
             }
-            if (vel.x < -SPEED_LIMIT) {
-                vel.x = -SPEED_LIMIT;
+            else {
+                vel.x = vel.x * -2;
+                vel.y = vel.y * -2;
+                if (vel.x > SPEED_LIMIT) {
+                    vel.x = SPEED_LIMIT;
+                }
+                if (vel.x < -SPEED_LIMIT) {
+                    vel.x = -SPEED_LIMIT;
+                }
+                if (vel.y > SPEED_LIMIT) {
+                    vel.y = SPEED_LIMIT;
+                }
+                if (vel.y < -SPEED_LIMIT) {
+                    vel.y = -SPEED_LIMIT;
+                }
+                this.position.add(vel);
             }
-            if (vel.y > SPEED_LIMIT) {
-                vel.y = SPEED_LIMIT;
-            }
-            if (vel.y < -SPEED_LIMIT) {
-                vel.y = -SPEED_LIMIT;
-            }
-
-            this.position.add(vel);
         }
     }
 
@@ -177,7 +188,9 @@ public class Character extends Agent implements RenderedObject{
             if (!(object instanceof Character)) {
                 Rectangle characterBounds = new Rectangle(this.getPosition().x, this.getPosition().y, width, height);
                 Rectangle objectBounds = new Rectangle(object.getPosition().x, object.getPosition().y, object.getWidth(), object.getHeight());
+
                 if (Intersector.overlaps(characterBounds, objectBounds)) {
+                    collisionObject = object;
                     return true;
                 }
             }
