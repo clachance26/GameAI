@@ -2,16 +2,17 @@ package com.mygdx.game;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.mygdx.game.application_mode.ApplicationModeEnum;
 import com.mygdx.game.application_mode.ApplicationModeSingleton;
 import com.mygdx.game.debug.Debug;
-import com.mygdx.game.game_objects.BlackHole;
+import com.mygdx.game.game_objects.*;
 import com.mygdx.game.game_objects.Character;
-import com.mygdx.game.game_objects.GameObject;
 import com.mygdx.game.navigation.AStar;
 import com.mygdx.game.navigation.NavigationGraph;
 import com.mygdx.game.navigation.NavigationNode;
@@ -19,24 +20,28 @@ import com.mygdx.game.rendered_objects.*;
 import com.mygdx.game.rendered_objects.SplashScreen;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Deque;
+import java.util.*;
 import java.util.List;
 
 public class GameAI extends ApplicationAdapter {
 
 	private static final int NUM_BLACK_HOLES = 3;
-	private static final
+	private static final int NEST_PLACEMENT_BUFFER_DISTANCE = 50;
+	private static final Vector2 DIFFICULTY_DRAW_POSITION = new Vector2(182, 59);
+	private static final String NEST_IMAGE_NAME_A = "tempNestA.png";
+	private static final String NEST_IMAGE_NAME_B = "tempNestB.png";
+	private static final String NEST_IMAGE_NAME_C = "tempNestC.png";
 
 	Rectangle bounds = new Rectangle(0, 0, 900, 600);
 	List<GameObject> gameObjects = new ArrayList<>();
 	List<RenderedObject> renderedObjects = new ArrayList<>();
 	SpriteBatch batch;
+	BitmapFont font;
 	SplashScreen splashScreen;
 	GameOverScreen gameOverScreen;
 	Background background;
 	BlackHole[] blackHoles;
+	List<FeederNest> feederNests;
 	int blackHoleIndex;
 	boolean gameOverScreenInitialized = false;
 
@@ -56,13 +61,16 @@ public class GameAI extends ApplicationAdapter {
 	
 	@Override
 	public void create () {
+
 		batch = new SpriteBatch();
+		font = new BitmapFont();
+
+		ApplicationModeSingleton.getInstance().setGameAI(this);
 		ApplicationModeSingleton.getInstance().setApplicationMode(ApplicationModeEnum.SPLASH_SCREEN);
 		ApplicationModeSingleton.getInstance().setGameDifficulty(Difficulty.EASY);
 
 		//Create the debug object
 		debug = new Debug(this);
-		debug.printApplicationHeader();
 		ApplicationModeSingleton.getInstance().setDebug(debug);
 		AStar.setDebug(debug);
 
@@ -113,7 +121,6 @@ public class GameAI extends ApplicationAdapter {
 						//We have placed all of our black holes, so transition into the play state and add the black
 						//holes to our game objects
 						ApplicationModeSingleton.getInstance().setApplicationMode(ApplicationModeEnum.PLAY);
-						gameObjects.addAll(Arrays.asList(blackHoles));
 					}
 				}
 				break;
@@ -134,14 +141,18 @@ public class GameAI extends ApplicationAdapter {
 
 				if (inputProcessor.isGameOverScreenContinue()) {
 					inputProcessor.setGameOverScreenContinue(false);
+					gameOverScreenInitialized = false;
 					resetGame();
-					ApplicationModeSingleton.getInstance().setApplicationMode(ApplicationModeEnum.SETUP);
 				}
 				break;
 		}
 
 		//Draw all of the game components
 		renderedObjects.forEach(RenderedObject::draw);
+
+		if (ApplicationModeSingleton.getInstance().getApplicationMode().equals(ApplicationModeEnum.SPLASH_SCREEN)) {
+			drawDifficultyText(ApplicationModeSingleton.getInstance().getGameDifficulty());
+		}
 
 		//Handle sensor output periodically
 //		if (ApplicationModeSingleton.getInstance().getApplicationMode().equals(ApplicationModeEnum.EVALUATE_SENSORS)
@@ -154,10 +165,10 @@ public class GameAI extends ApplicationAdapter {
 	}
 
 	/**
-	 * This function is called immediately after the user navigates away from the splash screen
-	 * Here we create all of the necessary game components to start the game
+	 * This function creates all of the necessary game components to start the game
+	 * It is called immediately after the user navigates away from the splash screen or when we reset the game after a game over
 	 */
-	public void initializeGame() {
+	private void initializeGame() {
 
 		//Initialize the game objects
 		background = new Background(this);
@@ -169,6 +180,8 @@ public class GameAI extends ApplicationAdapter {
 		renderedObjects.add(background);
 		renderedObjects.add(character);
 
+		initializeFeederNests();
+
 		//Create the Navigation Graph
 		navigationGraph = new NavigationGraph();
 		AStar.setNavigationGraph(navigationGraph.getGraph());
@@ -176,13 +189,90 @@ public class GameAI extends ApplicationAdapter {
 
 		blackHoles = new BlackHole[NUM_BLACK_HOLES];
 		blackHoleIndex = 0;
+		inputProcessor.setNewClickToProcess(false);
 	}
 
 	//Todo: finish all of this logic
 	private void resetGame() {
+		ApplicationModeSingleton.getInstance().setApplicationMode(ApplicationModeEnum.SETUP);
 		renderedObjects = new ArrayList<>();
 		gameObjects = new ArrayList<>();
 		initializeGame();
+	}
+
+	/**
+	 * Helper function to spawn the feeder nests
+	 * We will do this at the start of the game
+	 * Nests are placed randomly within some bounds
+	 */
+	private void initializeFeederNests() {
+
+		feederNests = new ArrayList<>();
+
+		switch (ApplicationModeSingleton.getInstance().getGameDifficulty()) {
+			//The number of nests in the game is going to be based on the difficulty
+			case EASY:
+				feederNests.add(createNewNest(Feeder.FeederBreedEnum.BREED_A));
+				break;
+			case MEDIUM:
+				feederNests.add(createNewNest(Feeder.FeederBreedEnum.BREED_A));
+				feederNests.add(createNewNest(Feeder.FeederBreedEnum.BREED_B));
+				break;
+			case HARD:
+				feederNests.add(createNewNest(Feeder.FeederBreedEnum.BREED_A));
+				feederNests.add(createNewNest(Feeder.FeederBreedEnum.BREED_B));
+				break;
+			case BRUTAL:
+				feederNests.add(createNewNest(Feeder.FeederBreedEnum.BREED_A));
+				feederNests.add(createNewNest(Feeder.FeederBreedEnum.BREED_B));
+				feederNests.add(createNewNest(Feeder.FeederBreedEnum.BREED_C));
+				break;
+		}
+	}
+
+	/**
+	 * Private function to create a feeder nest within a given bounds
+	 * We then have to look at where we placed it and make sure that is not too close to other game objects
+	 * @return the created feeder nest
+	 */
+	private FeederNest createNewNest(Feeder.FeederBreedEnum breed) {
+
+		FeederNest nest = null;
+		Random random = new Random();
+		int x, y;
+		boolean validPlacement = false;
+		String imageName = "";
+
+		switch (breed) {
+			case BREED_A:
+				imageName = NEST_IMAGE_NAME_A;
+				break;
+			case BREED_B:
+				imageName = NEST_IMAGE_NAME_B;
+				break;
+			case BREED_C:
+				imageName = NEST_IMAGE_NAME_C;
+				break;
+		}
+
+		while (!validPlacement) {
+			//Now we need to come up with some coordinates
+			//We will pick a random coordinate within the buffer distance of the game bounds
+			x = random.nextInt((int) bounds.getWidth() - (2 * NEST_PLACEMENT_BUFFER_DISTANCE) - FeederNest.getWIDTH());
+			x += NEST_PLACEMENT_BUFFER_DISTANCE;
+			y = random.nextInt((int) bounds.getHeight() - (2 * NEST_PLACEMENT_BUFFER_DISTANCE) - FeederNest.getHEIGHT());
+			y += NEST_PLACEMENT_BUFFER_DISTANCE;
+
+			nest = new FeederNest(imageName, batch, x, y, 270, breed);
+
+			validPlacement = nest.isValidPlacement(gameObjects);
+		}
+
+		//We are using the game objects list to check if the placement of a nest is valid
+		//For this reason, we must add this new object to the game objects list here
+		renderedObjects.add(nest);
+		gameObjects.add(nest);
+		return nest;
 	}
 
 	/**
@@ -199,14 +289,57 @@ public class GameAI extends ApplicationAdapter {
 		BlackHole blackHole = new BlackHole(batch, click.x, click.y, 270);
 		blackHole.setPosition(new Vector2(blackHole.getPosition().x - blackHole.getWidth()/2,
 				                          blackHole.getPosition().y - blackHole.getHeight()/2));
-		//Make sure that the click is within the appropriate bounds
-		//if (click.x < )
 
-		//gameObjects.add(blackHole);
+		//Make sure that the black hole is within the appropriate bounds
+		//The position that we found is the bottom left of the center of the black hole (the region that we use to detect
+		//collisions for determining if an entity has been consumed by the black hole)
+		//We need to find the bottom left of the actual black hole texture to see if the placement is within the correct bounds
+		Vector2 texturePosition = new Vector2();
+		texturePosition.set(blackHole.getPosition().x - ((blackHole.getTexture().getWidth()/2) - (blackHole.getWidth()/2)),
+				            blackHole.getPosition().y - ((blackHole.getTexture().getHeight()/2) - (blackHole.getHeight()/2)));
+		if (texturePosition.x < 0 || texturePosition.y < 0) {
+			return false;
+		}
+		if (texturePosition.x > bounds.getWidth() || texturePosition.y > bounds.getHeight()) {
+			return false;
+		}
+		if (!blackHole.isValidPlacement(gameObjects)) {
+			return false;
+		}
+
 		//Add it to be rendered before the character
 		renderedObjects.add(renderedObjects.indexOf(character), blackHole);
+		gameObjects.add(blackHole);
 		blackHoles[blackHoleIndex] = blackHole;
 		return true;
+	}
+
+	public void drawDifficultyText(Difficulty difficulty) {
+		String difficultyString = "";
+
+		switch (difficulty) {
+			case EASY:
+				font.setColor(Color.GREEN);
+				difficultyString = "Easy";
+				break;
+			case MEDIUM:
+				font.setColor(Color.YELLOW);
+				difficultyString = "Medium";
+				break;
+			case HARD:
+				font.setColor(Color.RED);
+				difficultyString = "Hard";
+				break;
+			case BRUTAL:
+				font.setColor(Color.BLACK);
+				difficultyString = "Brutal";
+				break;
+		}
+
+		//Only able to change difficulty in splash screen, so only draw it in the splash screen
+		if (ApplicationModeSingleton.getInstance().getApplicationMode().equals(ApplicationModeEnum.SPLASH_SCREEN)) {
+			font.draw(batch, difficultyString, DIFFICULTY_DRAW_POSITION.x, DIFFICULTY_DRAW_POSITION.y);
+		}
 	}
 
 	public Rectangle getBounds() {

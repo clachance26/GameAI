@@ -2,6 +2,8 @@ package com.mygdx.game.game_objects;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Intersector;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 import java.util.List;
@@ -36,6 +38,14 @@ public abstract class GameObject {
         this.angle = angle;
         this.height = height;
         this.width = width;
+    }
+
+    public boolean collidesWith(GameObject object) {
+
+        Rectangle ourBounds = new Rectangle(position.x, position.y, width, height);
+        Rectangle objectBounds = new Rectangle(object.getPosition().x, object.getPosition().y, object.getWidth(), object.getHeight());
+
+        return Intersector.overlaps(ourBounds, objectBounds);
     }
 
     public int getHeight() {

@@ -25,7 +25,7 @@ public class Character extends Agent implements RenderedObject{
     private static final int HEIGHT  = 25;
     private static final float SPEED_FACTOR = 0.1f;
     private static final float SPEED_LIMIT = 15;
-    private static final float FORWARD_DECAY = 0.9f;
+    private static final float FORWARD_DECAY = 0.95f;
 
     private TextureRegion textureRegion;
     private GameObject collisionObject;
@@ -183,13 +183,12 @@ public class Character extends Agent implements RenderedObject{
      * makes sure we do not go through agents and walls
      */
     private boolean checkForCollisions(List<GameObject> objects) {
-        for(GameObject object : objects)
-        {
-            if (!(object instanceof Character)) {
-                Rectangle characterBounds = new Rectangle(this.getPosition().x, this.getPosition().y, width, height);
-                Rectangle objectBounds = new Rectangle(object.getPosition().x, object.getPosition().y, object.getWidth(), object.getHeight());
 
-                if (Intersector.overlaps(characterBounds, objectBounds)) {
+        for(GameObject object : objects) {
+
+            if (!(object instanceof Character)) {
+
+                if (this.collidesWith(object)) {
                     collisionObject = object;
                     return true;
                 }

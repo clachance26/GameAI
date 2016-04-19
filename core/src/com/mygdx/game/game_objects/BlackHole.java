@@ -20,21 +20,21 @@ public class BlackHole extends GameObject implements RenderedObject{
     //Bounds for the center of the black hole (where if you hit it you will die)
     private static final int WIDTH   = 10;
     private static final int HEIGHT  = 10;
-    //Bounds for the texture of the black hole (used to draw it)
-//    private static final int TEXTURE_WIDTH   = 100;
-//    private static final int TEXTURE_HEIGHT  = 76;
+    private static final int VALID_PLACEMENT_RANGE = 100;
 
     //How strong the gravitational pull of the black hole is
     private float gravitationalPullFactor = 35;
     private int gravitationalRange = 150;
 
     //Used for detecting nearby objects to add gravitational pull to
-    private AdjacentAgentSensor adjacentAgentSensor;
+    private AdjacentAgentSensor gravitySensor;
+    private AdjacentAgentSensor placementSensor;
 
     public BlackHole(SpriteBatch batch, float x, float y, float ang){
 
         super(IMAGE_NAME, batch, x, y, ang, WIDTH, HEIGHT);
-        adjacentAgentSensor = new AdjacentAgentSensor(this, gravitationalRange);
+        gravitySensor = new AdjacentAgentSensor(this, gravitationalRange);
+        placementSensor = new AdjacentAgentSensor(this, VALID_PLACEMENT_RANGE);
     }
 
     @Override
@@ -45,14 +45,13 @@ public class BlackHole extends GameObject implements RenderedObject{
 
     public void performGravitationalPull(List<GameObject> gameObjects) {
 
-        adjacentAgentSensor.detect(gameObjects);
-        List<AdjacentObject> adjacentObjects = adjacentAgentSensor.getAdjacentObjects();
+        gravitySensor.detect(gameObjects);
+        List<AdjacentObject> adjacentObjects = gravitySensor.getAdjacentObjects();
 
         for (AdjacentObject adjacentObject : adjacentObjects) {
 
             if (adjacentObject.getDetectedObject() instanceof Agent) {
 
-                //TODO: Is this dangerous?
                 Agent detectedObject = (Agent) adjacentObject.getDetectedObject();
                 Vector2 blackHolePosition = new Vector2(this.getPosition());
                 Vector2 objectPosition = new Vector2(detectedObject.getPosition());
@@ -70,5 +69,27 @@ public class BlackHole extends GameObject implements RenderedObject{
                 detectedObject.moveFromGravity(gravitationalPull, gameObjects);
             }
         }
+    }
+
+    public boolean isValidPlacement(List<GameObject> objects) {
+
+        List<AdjacentObject> adjacentObjects;
+        placementSensor.detect(objects);
+        adjacentObjects = placementSensor.getAdjacentObjects();
+
+        for (AdjacentObject adjacentObject : adjacentObjects) {
+
+            GameObject detectedObject = adjacentObject.getDetectedObject();
+            if (detectedObject instanceof FeederNest || detectedObject instanceof BlackHole) {
+                return false;
+            }
+            if (detectedObject instanceof Character) {
+                if (this.collidesWith(detectedObject)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 }

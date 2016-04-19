@@ -81,24 +81,24 @@ public class MyInputProcessor implements InputProcessor {
                     return true;
 
                 case Input.Keys.NUM_1:
-                    if (ApplicationModeSingleton.getInstance().getApplicationMode().equals(ApplicationModeEnum.SETUP)) {
+                    if (ApplicationModeSingleton.getInstance().getApplicationMode().equals(ApplicationModeEnum.SPLASH_SCREEN)) {
                         ApplicationModeSingleton.getInstance().setGameDifficulty(Difficulty.EASY);
                         return true;
                     }
                 case Input.Keys.NUM_2:
-                    if (ApplicationModeSingleton.getInstance().getApplicationMode().equals(ApplicationModeEnum.SETUP)) {
+                    if (ApplicationModeSingleton.getInstance().getApplicationMode().equals(ApplicationModeEnum.SPLASH_SCREEN)) {
                         ApplicationModeSingleton.getInstance().setGameDifficulty(Difficulty.MEDIUM);
                         return true;
                     }
 
                 case Input.Keys.NUM_3:
-                    if (ApplicationModeSingleton.getInstance().getApplicationMode().equals(ApplicationModeEnum.SETUP)) {
+                    if (ApplicationModeSingleton.getInstance().getApplicationMode().equals(ApplicationModeEnum.SPLASH_SCREEN)) {
                         ApplicationModeSingleton.getInstance().setGameDifficulty(Difficulty.HARD);
                         return true;
                     }
 
                 case Input.Keys.NUM_4:
-                    if (ApplicationModeSingleton.getInstance().getApplicationMode().equals(ApplicationModeEnum.SETUP)) {
+                    if (ApplicationModeSingleton.getInstance().getApplicationMode().equals(ApplicationModeEnum.SPLASH_SCREEN)) {
                         ApplicationModeSingleton.getInstance().setGameDifficulty(Difficulty.BRUTAL);
                         return true;
                     }
