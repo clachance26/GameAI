@@ -1,7 +1,10 @@
 package com.mygdx.game;
 
 import com.badlogic.gdx.math.Vector2;
+import com.mygdx.game.game_objects.Agent;
 import com.mygdx.game.game_objects.Character;
+import com.mygdx.game.game_objects.GameObject;
+import com.mygdx.game.game_objects.Hunter;
 
 import java.util.List;
 
@@ -10,10 +13,10 @@ import java.util.List;
  */
 public class Seek {
 
-    private static final float SPEED_FACTOR = 5;
+    public static float SPEED_FACTOR = 2;
     private static boolean done = false;
 
-    public static void seek(Character character, Vector2 targetPosition, List objects) {
+    public static void seek(Hunter character, Vector2 targetPosition, List objects) {
 
         Vector2 characterPosition = new Vector2(character.getPosition());
         characterPosition.add(character.getWidth() / 2, character.getHeight() / 2);

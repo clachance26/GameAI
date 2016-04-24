@@ -32,9 +32,10 @@ public class GameAI extends ApplicationAdapter {
 	private static final String NEST_IMAGE_NAME_B = "tempNestB.png";
 	private static final String NEST_IMAGE_NAME_C = "tempNestC.png";
 
-	Rectangle bounds = new Rectangle(0, 0, 900, 600);
-	List<GameObject> gameObjects = new ArrayList<>();
-	List<RenderedObject> renderedObjects = new ArrayList<>();
+    private int spawnRatePerSec = 7;
+    Rectangle bounds = new Rectangle(0, 0, 900, 600);
+	static List<GameObject> gameObjects = new ArrayList<>();
+	static List<RenderedObject> renderedObjects = new ArrayList<>();
 	SpriteBatch batch;
 	BitmapFont font;
 	SplashScreen splashScreen;
@@ -126,8 +127,151 @@ public class GameAI extends ApplicationAdapter {
 				break;
 
 			case PLAY:
+				Random rand = new Random();
+				int randomSide = rand.nextInt(4);
+				int xSpawn = 0, ySpawn = 0;
+				if(renderCount % (spawnRatePerSec * 60) == 0)
+				{
+					switch(randomSide)
+					{
+						case 0:
+							xSpawn = rand.nextInt(900);
+							ySpawn = 0;
+							break;
+						case 1:
+							xSpawn = rand.nextInt(900);
+							ySpawn = 600;
+							break;
+						case 2:
+							xSpawn = 0;
+							ySpawn = rand.nextInt(600);
+							break;
+						case 3:
+							xSpawn = 900;
+							ySpawn = rand.nextInt(600);
+							break;
+					}
+
+                    Hunter hunter = new Hunter(batch, xSpawn, ySpawn, 270);
+					gameObjects.add(hunter);
+                    renderedObjects.add(hunter);
+				}
+
+				if(renderCount % ((spawnRatePerSec * 60) + 30) == 0)
+				{
+                    switch(randomSide)
+                    {
+                        case 0:
+                            xSpawn = rand.nextInt(900);
+                            ySpawn = 0;
+                            break;
+                        case 1:
+                            xSpawn = rand.nextInt(900);
+                            ySpawn = 600;
+                            break;
+                        case 2:
+                            xSpawn = 0;
+                            ySpawn = rand.nextInt(600);
+                            break;
+                        case 3:
+                            xSpawn = 900;
+                            ySpawn = rand.nextInt(600);
+                            break;
+                    }
+
+					Feeder feeder = new Feeder(batch, xSpawn, ySpawn, 270, Feeder.FeederBreedEnum.BREED_A, character);
+					gameObjects.add(feeder);
+					renderedObjects.add(feeder);
+				}
+
 				for (int i=0; i<NUM_BLACK_HOLES; i++) {
 					blackHoles[i].performGravitationalPull(gameObjects);
+				}
+				for (int i=0; i<gameObjects.size(); i++)
+				{
+					if(gameObjects.get(i) instanceof Hunter)
+					{
+						if(!((Hunter) gameObjects.get(i)).alive)
+						{
+							gameObjects.remove(i);
+						}
+						else
+						{
+							Seek seek = new Seek();
+							seek.seek((Hunter)gameObjects.get(i), character.getPosition(), gameObjects);
+						}
+					}
+					else if(gameObjects.get(i) instanceof Feeder)
+					{
+						Vector2 vel = new Vector2();
+						vel.x = 0;
+						vel.y = 0;
+                        Vector2 position = gameObjects.get(i).getPosition();
+						if(((Feeder) gameObjects.get(i)).triggered)
+						{
+							Hunter hunter = new Hunter(batch, position.x, position.y, 270);
+							gameObjects.remove(i);
+							gameObjects.add(hunter);
+                            renderedObjects.add(hunter);
+						}
+						else
+						{
+                            for(int j=0; j<feederNests.size(); j++)
+                            {
+                                if(feederNests.get(j).breed == Feeder.FeederBreedEnum.BREED_A)
+                                {
+                                    position = feederNests.get(j).getPosition();
+                                }
+                            }
+                            Point end = new Point((int)position.x, (int)position.y);
+							((Feeder) gameObjects.get(i)).move(vel, gameObjects);
+
+//                            if(!AStar.getIsDone()) {
+//                                Point feederPosition = new Point((int) (gameObjects.get(i).getPosition().x + gameObjects.get(i).getWidth() / 2),
+//                                        (int) (gameObjects.get(i).getPosition().y + gameObjects.get(i).getHeight() / 2));
+//                                feederPosition = NavigationNode.findClosestNavNode(feederPosition);
+//                                end = NavigationNode.findClosestNavNode(end);
+//                                aStarShortestPath = AStar.evaluateAStar(feederPosition, end);
+//                            }
+//                            if (AStar.getIsDone()) {
+//                                if (!Seek.isDone()) {
+//                                    Vector2 seekToVector = new Vector2(aStarShortestPath.peek().getLocation().x,
+//                                            aStarShortestPath.peek().getLocation().y);
+//                                    Seek.seek((Hunter)gameObjects.get(i), seekToVector, Collections.singletonList(character));
+//                                }
+//                                else
+//                                {
+//                                    if (aStarShortestPath.size() > 1)
+//                                    {
+//                                        aStarShortestPath.remove();
+//                                        Seek.setDone(false);
+//                                    }
+//                                    else if (aStarShortestPath.size() == 1)
+//                                    {
+//                                        aStarShortestPath.remove();
+//                                        Seek.setDone(true);
+//                                    }
+//                                }
+//                            }
+                        }
+					}
+				}
+				for (int i=0; i<renderedObjects.size(); i++)
+				{
+					if(renderedObjects.get(i) instanceof Hunter)
+					{
+						if(!((Hunter) renderedObjects.get(i)).alive)
+						{
+							renderedObjects.remove(i);
+						}
+					}
+					else if(renderedObjects.get(i) instanceof Feeder)
+					{
+						if(((Feeder) renderedObjects.get(i)).triggered)
+						{
+							renderedObjects.remove(i);
+						}
+					}
 				}
 				break;
 
@@ -213,19 +357,27 @@ public class GameAI extends ApplicationAdapter {
 			//The number of nests in the game is going to be based on the difficulty
 			case EASY:
 				feederNests.add(createNewNest(Feeder.FeederBreedEnum.BREED_A));
+                spawnRatePerSec = 7;
+                Seek.SPEED_FACTOR = 2;
 				break;
 			case MEDIUM:
 				feederNests.add(createNewNest(Feeder.FeederBreedEnum.BREED_A));
 				feederNests.add(createNewNest(Feeder.FeederBreedEnum.BREED_B));
+                spawnRatePerSec = 6;
+                Seek.SPEED_FACTOR = 3;
 				break;
 			case HARD:
 				feederNests.add(createNewNest(Feeder.FeederBreedEnum.BREED_A));
 				feederNests.add(createNewNest(Feeder.FeederBreedEnum.BREED_B));
-				break;
+                spawnRatePerSec = 5;
+                Seek.SPEED_FACTOR = 4;
+                break;
 			case BRUTAL:
 				feederNests.add(createNewNest(Feeder.FeederBreedEnum.BREED_A));
 				feederNests.add(createNewNest(Feeder.FeederBreedEnum.BREED_B));
 				feederNests.add(createNewNest(Feeder.FeederBreedEnum.BREED_C));
+                spawnRatePerSec = 3;
+                Seek.SPEED_FACTOR = 5;
 				break;
 		}
 	}

@@ -19,7 +19,7 @@ public class FeederNest extends GameObject implements RenderedObject {
     private static final int HEIGHT = 50;
     private static final int MIN_DISTANCE_BETWEEN_NESTS = 150;
 
-    Feeder.FeederBreedEnum breed;
+    public Feeder.FeederBreedEnum breed;
     AdjacentAgentSensor nestPlacementSensor;
 
     public FeederNest(String imageName, SpriteBatch batch, float x, float y, float angle, Feeder.FeederBreedEnum breed) {

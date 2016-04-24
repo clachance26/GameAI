@@ -43,6 +43,7 @@ public class AStar {
         evaluateNode(start);
         start.setEvaluated(true);
         current = start;
+        current.setHeuristic(200);
 
         //When the heuristic of the current node reaches 0, we have reached the destination node
         while (current.getHeuristic() > 0) {
