@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.mygdx.game.GameAI;
+import com.mygdx.game.Seek;
 import com.mygdx.game.application_mode.ApplicationModeEnum;
 import com.mygdx.game.application_mode.ApplicationModeSingleton;
 import com.mygdx.game.rendered_objects.RenderedObject;
@@ -23,11 +24,15 @@ public class Hunter extends Agent implements RenderedObject{
     public boolean alive = true;
     private GameObject collisionObject;
     private TextureRegion textureRegion;
+    private Seek seek;
+    private Character character;
 
-    public Hunter(SpriteBatch batch, float x, float y, float ang){
+    public Hunter(SpriteBatch batch, float x, float y, float ang, Character character){
 
         super(IMAGE_NAME, batch, x, y, ang, WIDTH, HEIGHT);
         textureRegion = new TextureRegion(texture);
+        seek = new Seek();
+        this.character = character;
     }
 
     @Override
@@ -46,6 +51,11 @@ public class Hunter extends Agent implements RenderedObject{
                 (collisionObject instanceof BlackHole)){
             alive = false;
         }
+    }
+
+    @Override
+    public void move(List<GameObject> objects) {
+        seek.seek((Hunter) this, character.getPosition(), objects);
     }
 
     @Override

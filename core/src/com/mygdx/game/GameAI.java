@@ -73,7 +73,7 @@ public class GameAI extends ApplicationAdapter {
 		//Create the debug object
 		debug = new Debug(this);
 		ApplicationModeSingleton.getInstance().setDebug(debug);
-		AStar.setDebug(debug);
+//		AStar.setDebug(debug);
 
 		//Handle the input using an event handler
 		//Every time a key is pressed or the mouse is clicked, an event will fire
@@ -135,24 +135,24 @@ public class GameAI extends ApplicationAdapter {
 					switch(randomSide)
 					{
 						case 0:
-							xSpawn = rand.nextInt(900);
+							xSpawn = rand.nextInt(850);
 							ySpawn = 0;
 							break;
 						case 1:
-							xSpawn = rand.nextInt(900);
-							ySpawn = 600;
+							xSpawn = rand.nextInt(850);
+							ySpawn = 550;
 							break;
 						case 2:
 							xSpawn = 0;
-							ySpawn = rand.nextInt(600);
+							ySpawn = rand.nextInt(550);
 							break;
 						case 3:
-							xSpawn = 900;
-							ySpawn = rand.nextInt(600);
+							xSpawn = 850;
+							ySpawn = rand.nextInt(550);
 							break;
 					}
 
-                    Hunter hunter = new Hunter(batch, xSpawn, ySpawn, 270);
+                    Hunter hunter = new Hunter(batch, xSpawn, ySpawn, 270, character);
 					gameObjects.add(hunter);
                     renderedObjects.add(hunter);
 				}
@@ -162,24 +162,35 @@ public class GameAI extends ApplicationAdapter {
                     switch(randomSide)
                     {
                         case 0:
-                            xSpawn = rand.nextInt(900);
-                            ySpawn = 0;
+                            xSpawn = rand.nextInt(800);
+                            ySpawn = 100;
                             break;
                         case 1:
-                            xSpawn = rand.nextInt(900);
-                            ySpawn = 600;
+                            xSpawn = rand.nextInt(800);
+                            ySpawn = 500;
                             break;
                         case 2:
-                            xSpawn = 0;
-                            ySpawn = rand.nextInt(600);
+                            xSpawn = 100;
+                            ySpawn = rand.nextInt(500);
                             break;
                         case 3:
-                            xSpawn = 900;
-                            ySpawn = rand.nextInt(600);
+                            xSpawn = 800;
+                            ySpawn = rand.nextInt(500);
                             break;
                     }
 
-					Feeder feeder = new Feeder(batch, xSpawn, ySpawn, 270, Feeder.FeederBreedEnum.BREED_A, character);
+					Point nestPosition = new Point(0,0);
+					for(int j=0; j<feederNests.size(); j++)
+					{
+						if(feederNests.get(j).breed == Feeder.FeederBreedEnum.BREED_A)
+						{
+							nestPosition.x = (int) feederNests.get(j).getPosition().x + feederNests.get(j).getWidth()/2;
+							nestPosition.y = (int) feederNests.get(j).getPosition().y + feederNests.get(j).getHeight()/2;
+						}
+					}
+
+					Feeder feeder = new Feeder(batch, xSpawn, ySpawn, 270, Feeder.FeederBreedEnum.BREED_A, character,
+							gameObjects, nestPosition, blackHoles);
 					gameObjects.add(feeder);
 					renderedObjects.add(feeder);
 				}
@@ -197,62 +208,23 @@ public class GameAI extends ApplicationAdapter {
 						}
 						else
 						{
-							Seek seek = new Seek();
-							seek.seek((Hunter)gameObjects.get(i), character.getPosition(), gameObjects);
+							((Hunter) gameObjects.get(i)).move(gameObjects);
 						}
 					}
 					else if(gameObjects.get(i) instanceof Feeder)
 					{
-						Vector2 vel = new Vector2();
-						vel.x = 0;
-						vel.y = 0;
                         Vector2 position = gameObjects.get(i).getPosition();
 						if(((Feeder) gameObjects.get(i)).triggered)
 						{
-							Hunter hunter = new Hunter(batch, position.x, position.y, 270);
+							Hunter hunter = new Hunter(batch, position.x, position.y, 270, character);
 							gameObjects.remove(i);
 							gameObjects.add(hunter);
                             renderedObjects.add(hunter);
 						}
 						else
 						{
-                            for(int j=0; j<feederNests.size(); j++)
-                            {
-                                if(feederNests.get(j).breed == Feeder.FeederBreedEnum.BREED_A)
-                                {
-                                    position = feederNests.get(j).getPosition();
-                                }
-                            }
-                            Point end = new Point((int)position.x, (int)position.y);
-							((Feeder) gameObjects.get(i)).move(vel, gameObjects);
-
-//                            if(!AStar.getIsDone()) {
-//                                Point feederPosition = new Point((int) (gameObjects.get(i).getPosition().x + gameObjects.get(i).getWidth() / 2),
-//                                        (int) (gameObjects.get(i).getPosition().y + gameObjects.get(i).getHeight() / 2));
-//                                feederPosition = NavigationNode.findClosestNavNode(feederPosition);
-//                                end = NavigationNode.findClosestNavNode(end);
-//                                aStarShortestPath = AStar.evaluateAStar(feederPosition, end);
-//                            }
-//                            if (AStar.getIsDone()) {
-//                                if (!Seek.isDone()) {
-//                                    Vector2 seekToVector = new Vector2(aStarShortestPath.peek().getLocation().x,
-//                                            aStarShortestPath.peek().getLocation().y);
-//                                    Seek.seek((Hunter)gameObjects.get(i), seekToVector, Collections.singletonList(character));
-//                                }
-//                                else
-//                                {
-//                                    if (aStarShortestPath.size() > 1)
-//                                    {
-//                                        aStarShortestPath.remove();
-//                                        Seek.setDone(false);
-//                                    }
-//                                    else if (aStarShortestPath.size() == 1)
-//                                    {
-//                                        aStarShortestPath.remove();
-//                                        Seek.setDone(true);
-//                                    }
-//                                }
-//                            }
+							//Maybe unnecessary
+							((Feeder) gameObjects.get(i)).move(gameObjects);
                         }
 					}
 				}
@@ -328,7 +300,7 @@ public class GameAI extends ApplicationAdapter {
 
 		//Create the Navigation Graph
 		navigationGraph = new NavigationGraph();
-		AStar.setNavigationGraph(navigationGraph.getGraph());
+		AStar.setNavigationGraph(navigationGraph);
 		AStar.setGameObjects(gameObjects);
 
 		blackHoles = new BlackHole[NUM_BLACK_HOLES];

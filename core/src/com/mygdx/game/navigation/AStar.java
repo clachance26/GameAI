@@ -13,17 +13,17 @@ import java.util.concurrent.LinkedBlockingDeque;
  */
 public class AStar {
 
-    private static Boolean isDone = false;
-    private static NavigationNode[][] navigationGraph;
-    private static Deque<NavigationNode> shortestPath;
-    private static PriorityQueue<NavigationNode> searchQueue;
-    private static Integer searchQueueCounter = 0;
+    private Boolean isDone = false;
+    private static NavigationGraph navigationGraph;
+    private Deque<NavigationNode> shortestPath;
+    private PriorityQueue<NavigationNode> searchQueue;
+    private Integer searchQueueCounter = 0;
     private static List<GameObject> gameObjects;
-    private static NavigationNode start, destination, current, left, right, up, down;
+    private NavigationNode start, destination, current, left, right, up, down;
     private static Debug debug;
-    private static int x, y;
+    private int x, y;
 
-    public static Deque<NavigationNode> evaluateAStar(Point startPoint, Point destinationPoint) {
+    public Deque<NavigationNode> evaluateAStar(Point startPoint, Point destinationPoint) {
 
         shortestPath = new LinkedBlockingDeque<>();
         searchQueue = new PriorityQueue<>();
@@ -31,11 +31,11 @@ public class AStar {
 
         tempIndex1 = NavigationNode.getNodeIndexFromLocation(startPoint.x);
         tempIndex2 = NavigationNode.getNodeIndexFromLocation(startPoint.y);
-        start = navigationGraph[tempIndex1][tempIndex2];
+        start = navigationGraph.graph[tempIndex1][tempIndex2];
 
         tempIndex1 = NavigationNode.getNodeIndexFromLocation(destinationPoint.x);
         tempIndex2 = NavigationNode.getNodeIndexFromLocation(destinationPoint.y);
-        destination = navigationGraph[tempIndex1][tempIndex2];
+        destination = navigationGraph.graph[tempIndex1][tempIndex2];
 
         //Initialize the start node
         start.setAsTheStartNode(true);
@@ -43,7 +43,6 @@ public class AStar {
         evaluateNode(start);
         start.setEvaluated(true);
         current = start;
-        current.setHeuristic(200);
 
         //When the heuristic of the current node reaches 0, we have reached the destination node
         while (current.getHeuristic() > 0) {
@@ -58,22 +57,22 @@ public class AStar {
             if (left != null && evaluateNode(left)) {
                 left.setaStarCounter(++searchQueueCounter);
                 searchQueue.add(left);
-                debug.printAStarSearch(left.getLocation());
+//                debug.printAStarSearch(left.getLocation());
             }
             if (right != null && evaluateNode(right)) {
                 right.setaStarCounter(++searchQueueCounter);
                 searchQueue.add(right);
-                debug.printAStarSearch(right.getLocation());
+//                debug.printAStarSearch(right.getLocation());
             }
             if (up != null && evaluateNode(up)) {
                 up.setaStarCounter(++searchQueueCounter);
                 searchQueue.add(up);
-                debug.printAStarSearch(up.getLocation());
+//                debug.printAStarSearch(up.getLocation());
             }
             if (down != null && evaluateNode(down)) {
                 down.setaStarCounter(++searchQueueCounter);
                 searchQueue.add(down);
-                debug.printAStarSearch(down.getLocation());
+//                debug.printAStarSearch(down.getLocation());
             }
 
             current = searchQueue.remove();
@@ -86,7 +85,7 @@ public class AStar {
         return shortestPath;
     }
 
-    private static boolean evaluateNode(NavigationNode nodeToEvaluate) {
+    private boolean evaluateNode(NavigationNode nodeToEvaluate) {
 
         if (nodeToEvaluate.isEvaluated()) {
             return false;
@@ -123,34 +122,34 @@ public class AStar {
         return true;
     }
 
-    private static void initializeAdjacentNodes() {
+    private void initializeAdjacentNodes() {
 
         if (x > 0) {
-            left = navigationGraph[x-1][y];
+            left = navigationGraph.graph[x-1][y];
         } else {
             left = null;
         }
 
-        if (x < navigationGraph.length-1) {
-            right = navigationGraph[x+1][y];
+        if (x < navigationGraph.graph.length-1) {
+            right = navigationGraph.graph[x+1][y];
         } else {
             right = null;
         }
 
-        if (y < navigationGraph[0].length-1) {
-            up = navigationGraph[x][y+1];
+        if (y < navigationGraph.graph[0].length-1) {
+            up = navigationGraph.graph[x][y+1];
         } else {
             up = null;
         }
 
         if (y > 0) {
-            down = navigationGraph[x][y-1];
+            down = navigationGraph.getGraph()[x][y-1];
         } else {
             down = null;
         }
     }
 
-    private static void traceBackShortestPath() {
+    private void traceBackShortestPath() {
 
         NavigationNode currentTraceNode = destination;
         while (!currentTraceNode.isStartNode()) {
@@ -161,23 +160,23 @@ public class AStar {
         shortestPath.addFirst(currentTraceNode);
     }
 
-    public static NavigationNode[][] getNavigationGraph() {
+    public  NavigationGraph getNavigationGraph() {
         return navigationGraph;
     }
 
-    public static void setNavigationGraph(NavigationNode[][] navigationGraph) {
+    public static void setNavigationGraph(NavigationGraph navigationGraph) {
         AStar.navigationGraph = navigationGraph;
     }
 
-    public static Boolean getIsDone() {
+    public  Boolean getIsDone() {
         return isDone;
     }
 
-    public static void setIsDone(Boolean isDone) {
-        AStar.isDone = isDone;
+    public void setIsDone(Boolean isDone) {
+        this.isDone = isDone;
     }
 
-    public static Deque<NavigationNode> getShortestPath() {
+    public Deque<NavigationNode> getShortestPath() {
         return shortestPath;
     }
 
@@ -185,7 +184,7 @@ public class AStar {
         AStar.gameObjects = gameObjects;
     }
 
-    public static void setDebug(Debug debug) {
-        AStar.debug = debug;
+    public void setDebug(Debug debug) {
+        this.debug = debug;
     }
 }

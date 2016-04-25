@@ -100,14 +100,14 @@ public class Background implements RenderedObject {
         return drawCoordinates;
     }
 
-    private void drawAStarPath() {
-
-        Point drawCoordinates;
-        Deque<NavigationNode> aStarShortestPath = AStar.getShortestPath();
-
-        for (NavigationNode pathNode : aStarShortestPath) {
-            drawCoordinates = calculateNodeDrawCoordinates(pathNode.getLocation());
-            batch.draw(destinationNodeTexture, drawCoordinates.x, drawCoordinates.y);
-        }
-    }
+//    private void drawAStarPath() {
+//
+//        Point drawCoordinates;
+//        Deque<NavigationNode> aStarShortestPath = AStar.getShortestPath();
+//
+//        for (NavigationNode pathNode : aStarShortestPath) {
+//            drawCoordinates = calculateNodeDrawCoordinates(pathNode.getLocation());
+//            batch.draw(destinationNodeTexture, drawCoordinates.x, drawCoordinates.y);
+//        }
+//    }
 }

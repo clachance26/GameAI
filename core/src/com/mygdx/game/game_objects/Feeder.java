@@ -2,14 +2,22 @@ package com.mygdx.game.game_objects;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.*;
+import com.badlogic.gdx.math.Rectangle;
 import com.mygdx.game.GameAI;
+import com.mygdx.game.Seek;
 import com.mygdx.game.application_mode.ApplicationModeEnum;
 import com.mygdx.game.application_mode.ApplicationModeSingleton;
+import com.mygdx.game.navigation.AStar;
+import com.mygdx.game.navigation.NavigationGraph;
+import com.mygdx.game.navigation.NavigationNode;
 import com.mygdx.game.rendered_objects.RenderedObject;
 import com.mygdx.game.sensor_implementation.AdjacentAgentSensor;
 
+import java.awt.*;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.List;
 
 /**
@@ -32,13 +40,35 @@ public class Feeder extends Agent implements RenderedObject {
     private FeederBreedEnum breed;
     private AdjacentAgentSensor aaSensor;
     private Character characterToChase;
+    private Deque<NavigationNode> aStarShortestPath;
+    private BlackHole[] blackHoles;
+    private Seek seek;
+    private AStar aStar;
+    private NavigationGraph navigationGraph;
 
-    public Feeder(SpriteBatch batch, float x, float y, float ang, FeederBreedEnum breed, Character characterToChase){
+    public Feeder(SpriteBatch batch, float x, float y, float ang, FeederBreedEnum breed, Character characterToChase,
+                  List<GameObject> gameObjects, Point end, BlackHole[] blackHoles){
         super(IMAGE_NAME, batch, x, y, ang, WIDTH, HEIGHT);
         aaSensor = new AdjacentAgentSensor(this, 200);
         textureRegion = new TextureRegion(texture);
         this.breed = breed;
         this.characterToChase = characterToChase;
+        this.blackHoles = blackHoles;
+        this.seek = new Seek();
+        this.aStar = new AStar();
+        this.navigationGraph = new NavigationGraph();
+        this.navigationGraph.update(gameObjects, new Rectangle(0,0,900,600));
+
+        if(!aStar.getIsDone()) {
+            Point feederPosition = new Point((int) (position.x + WIDTH / 2),
+                    (int) (position.y + HEIGHT / 2));
+            feederPosition = NavigationNode.findClosestNavNode(feederPosition);
+            end = NavigationNode.findClosestNavNode(end);
+            AStar.setNavigationGraph(navigationGraph);
+            aStarShortestPath = aStar.evaluateAStar(feederPosition, end);
+//                                aStarShortestPath = AStar.evaluateAStar(feederPosition, end);
+        }
+
     }
 
     @Override
@@ -50,12 +80,37 @@ public class Feeder extends Agent implements RenderedObject {
     @Override
     public void move(Vector2 vel, List<GameObject> objects) {
         checkForCollisions(objects);
-        this.position.add(vel);
+        position.add(vel);
+    }
+
+    @Override
+    public void move(List<GameObject> objects) {
+        checkForCollisions(objects);
         aaSensor.detect(Collections.singletonList(characterToChase));
         //If we are playing the game and we collide with a black hole or an alien, we lose
         if (ApplicationModeSingleton.getInstance().getApplicationMode().equals(ApplicationModeEnum.PLAY) &&
                 aaSensor.getAdjacentObjects().size() > 0){
             triggered = true;
+        }
+
+        if (aStar.getIsDone()) {
+//            if (!seek.isDone()) {
+                Vector2 seekToVector = new Vector2(aStarShortestPath.peek().getLocation().x,
+                        aStarShortestPath.peek().getLocation().y);
+                seek.seek(this, seekToVector, Arrays.asList(blackHoles));
+//            }
+//            else
+//            {
+                if (aStarShortestPath.size() > 3)
+                {
+                    aStarShortestPath.remove();
+                    seek.setDone(false);
+                }
+//                else if (aStarShortestPath.size() < 2)
+//                {
+//                    seek.setDone(true);
+//                }
+//            }
         }
     }
 

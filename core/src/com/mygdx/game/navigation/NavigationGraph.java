@@ -4,8 +4,8 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.*;
 import com.badlogic.gdx.math.Rectangle;
-import com.mygdx.game.game_objects.BlackHole;
-import com.mygdx.game.game_objects.GameObject;
+import com.mygdx.game.game_objects.*;
+import com.mygdx.game.game_objects.Character;
 
 import java.awt.*;
 import java.util.List;
@@ -67,6 +67,10 @@ public class NavigationGraph {
                                              BUFFER_DISTANCE, BUFFER_DISTANCE);
 
         for(GameObject object : gameObjects) {
+
+            if (object instanceof Hunter || object instanceof Feeder || object instanceof FeederNest || object instanceof Character) {
+                return true;
+            }
 
             Rectangle objectBounds = new Rectangle((int) object.getPosition().x,
                                                    (int) object.getPosition().y,

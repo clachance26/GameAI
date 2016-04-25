@@ -115,7 +115,7 @@ public class Character extends Agent implements RenderedObject{
                     (collisionObject instanceof BlackHole ||
                      collisionObject instanceof Hunter ||
                      collisionObject instanceof Feeder)) {
-                ApplicationModeSingleton.getInstance().setApplicationMode(ApplicationModeEnum.GAME_OVER);
+//                ApplicationModeSingleton.getInstance().setApplicationMode(ApplicationModeEnum.GAME_OVER);
             }
             else {
                 vel.x = vel.x * -2;
@@ -135,6 +135,11 @@ public class Character extends Agent implements RenderedObject{
                 this.position.add(vel);
             }
         }
+    }
+
+    @Override
+    public void move(List<GameObject> objects) {
+
     }
 
     @Override

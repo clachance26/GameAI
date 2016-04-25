@@ -21,7 +21,9 @@ public abstract class Agent extends GameObject {
         velocity = new Vector2();
     }
 
-    abstract void move(Vector2 vel, List<GameObject> objects);
+    public abstract void move(Vector2 vel, List<GameObject> objects);
+
+    public abstract void move(List<GameObject> objects);
 
     abstract void moveFromGravity(Vector2 velocity, List<GameObject> objects);
 

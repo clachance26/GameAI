@@ -14,9 +14,9 @@ import java.util.List;
 public class Seek {
 
     public static float SPEED_FACTOR = 2;
-    private static boolean done = false;
+    private boolean done = false;
 
-    public static void seek(Hunter character, Vector2 targetPosition, List objects) {
+    public void seek(Agent character, Vector2 targetPosition, List objects) {
 
         Vector2 characterPosition = new Vector2(character.getPosition());
         characterPosition.add(character.getWidth() / 2, character.getHeight() / 2);
@@ -68,11 +68,11 @@ public class Seek {
         return angle;
     }
 
-    public static boolean isDone() {
+    public boolean isDone() {
         return done;
     }
 
-    public static void setDone(boolean done) {
-        Seek.done = done;
+    public void setDone(boolean done) {
+        this.done = done;
     }
 }
