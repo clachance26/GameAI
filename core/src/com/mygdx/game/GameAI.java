@@ -133,7 +133,8 @@ public class GameAI extends ApplicationAdapter {
 				Random rand = new Random();
 				int randomSide = rand.nextInt(4);
 				int xSpawn = 0, ySpawn = 0;
-				if(renderCount % (spawnRatePerSec * 60) == 0)
+				if(ApplicationModeSingleton.getInstance().getGameDifficulty().equals(Difficulty.BRUTAL) ||
+						renderCount % (spawnRatePerSec * 60) == 0)
 				{
 					switch(randomSide)
 					{
@@ -162,7 +163,8 @@ public class GameAI extends ApplicationAdapter {
 					}
 				}
 
-				if(renderCount % ((spawnRatePerSec * 60) + 30) == 0)
+				if(ApplicationModeSingleton.getInstance().getGameDifficulty().equals(Difficulty.BRUTAL) ||
+						renderCount % ((spawnRatePerSec * 60) + 30) == 0)
 				{
 					switch(randomSide)
                     {
