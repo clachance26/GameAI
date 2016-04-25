@@ -28,14 +28,16 @@ public class GameAI extends ApplicationAdapter {
 	private static final int NUM_BLACK_HOLES = 3;
 	private static final int NEST_PLACEMENT_BUFFER_DISTANCE = 50;
 	private static final Vector2 DIFFICULTY_DRAW_POSITION = new Vector2(182, 59);
-	private static final String NEST_IMAGE_NAME_A = "tempNestA.png";
-	private static final String NEST_IMAGE_NAME_B = "tempNestB.png";
-	private static final String NEST_IMAGE_NAME_C = "tempNestC.png";
+	private static final String NEST_IMAGE_NAME_A = "nest.png";
+	private static final String NEST_IMAGE_NAME_B = "nest.png";
+	private static final String NEST_IMAGE_NAME_C = "nest.png";
 
     private int spawnRatePerSec = 7;
     Rectangle bounds = new Rectangle(0, 0, 900, 600);
 	static List<GameObject> gameObjects = new ArrayList<>();
 	static List<RenderedObject> renderedObjects = new ArrayList<>();
+	int numNests = 0;
+	int score = 0;
 	SpriteBatch batch;
 	BitmapFont font;
 	SplashScreen splashScreen;
@@ -127,10 +129,11 @@ public class GameAI extends ApplicationAdapter {
 				break;
 
 			case PLAY:
+				renderCount++;
 				Random rand = new Random();
 				int randomSide = rand.nextInt(4);
 				int xSpawn = 0, ySpawn = 0;
-				if(true)//renderCount % (spawnRatePerSec * 60) == 0)
+				if(renderCount % (spawnRatePerSec * 60) == 0)
 				{
 					switch(randomSide)
 					{
@@ -152,37 +155,37 @@ public class GameAI extends ApplicationAdapter {
 							break;
 					}
 
-                    Hunter hunter = new Hunter(batch, xSpawn, ySpawn, 270, character, gameObjects);
+					Hunter hunter = new Hunter(batch, xSpawn, ySpawn, 270, character, gameObjects);
 					if (hunter.validSpawn) {
 						gameObjects.add(hunter);
 						renderedObjects.add(hunter);
 					}
 				}
 
-				if(true)//renderCount % ((spawnRatePerSec * 60) + 30) == 0)
+				if(renderCount % ((spawnRatePerSec * 60) + 30) == 0)
 				{
-                    switch(randomSide)
+					switch(randomSide)
                     {
-                        case 0:
-                            xSpawn = rand.nextInt(850);
-                            ySpawn = 50;
-                            break;
-                        case 1:
-                            xSpawn = rand.nextInt(850);
-                            ySpawn = 550;
-                            break;
-                        case 2:
-                            xSpawn = 50;
-                            ySpawn = rand.nextInt(550);
-                            break;
-                        case 3:
-                            xSpawn = 850;
-                            ySpawn = rand.nextInt(550);
-                            break;
-                    }
+						case 0:
+							xSpawn = rand.nextInt(850);
+							ySpawn = 50;
+							break;
+						case 1:
+							xSpawn = rand.nextInt(850);
+							ySpawn = 550;
+							break;
+						case 2:
+							xSpawn = 50;
+							ySpawn = rand.nextInt(550);
+							break;
+						case 3:
+							xSpawn = 850;
+							ySpawn = rand.nextInt(550);
+							break;
+					}
 
 
-					int breedNum = rand.nextInt(3);
+					int breedNum = rand.nextInt(numNests);
 					Feeder.FeederBreedEnum feederBreed = Feeder.breedFromInt(breedNum);
 
 					Point nestPosition = new Point(0,0);
@@ -221,19 +224,19 @@ public class GameAI extends ApplicationAdapter {
 					}
 					else if(gameObjects.get(i) instanceof Feeder)
 					{
-                        Vector2 position = gameObjects.get(i).getPosition();
+						Vector2 position = gameObjects.get(i).getPosition();
 						if(((Feeder) gameObjects.get(i)).triggered)
 						{
 							Hunter hunter = new Hunter(batch, position.x, position.y, 270, character, gameObjects);
 							gameObjects.remove(i);
 							gameObjects.add(hunter);
-                            renderedObjects.add(hunter);
+							renderedObjects.add(hunter);
 						}
 						else
 						{
 							//Maybe unnecessary
 							((Feeder) gameObjects.get(i)).move(gameObjects);
-                        }
+						}
 					}
 				}
 				for (int i=0; i<renderedObjects.size(); i++)
@@ -261,6 +264,8 @@ public class GameAI extends ApplicationAdapter {
 					gameOverScreen = new GameOverScreen(batch);
 					renderedObjects.add(gameOverScreen);
 					gameOverScreenInitialized = true;
+					score = renderCount;
+					renderCount = 0;
 				}
 
 				if (inputProcessor.isGameOverScreenContinue()) {
@@ -278,6 +283,11 @@ public class GameAI extends ApplicationAdapter {
 			drawDifficultyText(ApplicationModeSingleton.getInstance().getGameDifficulty());
 		}
 
+		if (ApplicationModeSingleton.getInstance().getApplicationMode().equals(ApplicationModeEnum.GAME_OVER)) {
+			font.setColor(Color.BLACK);
+			font.draw(batch, String.valueOf(score), 335, 600 - 465);
+		}
+
 		//Handle sensor output periodically
 //		if (ApplicationModeSingleton.getInstance().getApplicationMode().equals(ApplicationModeEnum.EVALUATE_SENSORS)
 //				&& renderCount % outputUpdateRate == 0) {
@@ -285,7 +295,6 @@ public class GameAI extends ApplicationAdapter {
 //		}
 
 		batch.end();
-		renderCount++;
 	}
 
 	/**
@@ -339,18 +348,21 @@ public class GameAI extends ApplicationAdapter {
 				feederNests.add(createNewNest(Feeder.FeederBreedEnum.BREED_A));
                 spawnRatePerSec = 7;
                 Seek.SPEED_FACTOR = 2;
+				numNests = 1;
 				break;
 			case MEDIUM:
 				feederNests.add(createNewNest(Feeder.FeederBreedEnum.BREED_A));
 				feederNests.add(createNewNest(Feeder.FeederBreedEnum.BREED_B));
                 spawnRatePerSec = 6;
                 Seek.SPEED_FACTOR = 2.2f;
+				numNests = 2;
 				break;
 			case HARD:
 				feederNests.add(createNewNest(Feeder.FeederBreedEnum.BREED_A));
 				feederNests.add(createNewNest(Feeder.FeederBreedEnum.BREED_B));
                 spawnRatePerSec = 5;
                 Seek.SPEED_FACTOR = 2.8f;
+				numNests = 2;
                 break;
 			case BRUTAL:
 				feederNests.add(createNewNest(Feeder.FeederBreedEnum.BREED_A));
@@ -358,6 +370,7 @@ public class GameAI extends ApplicationAdapter {
 				feederNests.add(createNewNest(Feeder.FeederBreedEnum.BREED_C));
                 spawnRatePerSec = 3;
                 Seek.SPEED_FACTOR = 3;
+				numNests = 3;
 				break;
 		}
 	}

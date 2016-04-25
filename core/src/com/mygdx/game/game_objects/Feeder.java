@@ -50,7 +50,7 @@ public class Feeder extends Agent implements RenderedObject {
     public Feeder(SpriteBatch batch, float x, float y, float ang, FeederBreedEnum breed, Character characterToChase,
                   List<GameObject> gameObjects, Point end, BlackHole[] blackHoles){
         super(IMAGE_NAME, batch, x, y, ang, WIDTH, HEIGHT);
-        aaSensor = new AdjacentAgentSensor(this, 100);
+        aaSensor = new AdjacentAgentSensor(this, 150);
         textureRegion = new TextureRegion(texture);
         this.breed = breed;
         this.characterToChase = characterToChase;

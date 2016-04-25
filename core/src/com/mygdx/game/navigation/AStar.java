@@ -44,42 +44,48 @@ public class AStar {
         start.setEvaluated(true);
         current = start;
 
-        //When the heuristic of the current node reaches 0, we have reached the destination node
-        while (current.getHeuristic() > 0) {
+        try {
+            //When the heuristic of the current node reaches 0, we have reached the destination node
+            while (current.getHeuristic() > 0) {
 
-            x = NavigationNode.getNodeIndexFromLocation(current.getLocation().x);
-            y = NavigationNode.getNodeIndexFromLocation(current.getLocation().y);
+                x = NavigationNode.getNodeIndexFromLocation(current.getLocation().x);
+                y = NavigationNode.getNodeIndexFromLocation(current.getLocation().y);
 
-            //Initialize the adjacent nodes
-            initializeAdjacentNodes();
+                //Initialize the adjacent nodes
+                initializeAdjacentNodes();
 
-            //Evaluate all of the adjacent nodes and add them to the search queue to be checked later (if they are valid)
-            if (left != null && evaluateNode(left)) {
-                left.setaStarCounter(++searchQueueCounter);
-                searchQueue.add(left);
+                //Evaluate all of the adjacent nodes and add them to the search queue to be checked later (if they are valid)
+                if (left != null && evaluateNode(left)) {
+                    left.setaStarCounter(++searchQueueCounter);
+                    searchQueue.add(left);
 //                debug.printAStarSearch(left.getLocation());
-            }
-            if (right != null && evaluateNode(right)) {
-                right.setaStarCounter(++searchQueueCounter);
-                searchQueue.add(right);
+                }
+                if (right != null && evaluateNode(right)) {
+                    right.setaStarCounter(++searchQueueCounter);
+                    searchQueue.add(right);
 //                debug.printAStarSearch(right.getLocation());
-            }
-            if (up != null && evaluateNode(up)) {
-                up.setaStarCounter(++searchQueueCounter);
-                searchQueue.add(up);
+                }
+                if (up != null && evaluateNode(up)) {
+                    up.setaStarCounter(++searchQueueCounter);
+                    searchQueue.add(up);
 //                debug.printAStarSearch(up.getLocation());
-            }
-            if (down != null && evaluateNode(down)) {
-                down.setaStarCounter(++searchQueueCounter);
-                searchQueue.add(down);
+                }
+                if (down != null && evaluateNode(down)) {
+                    down.setaStarCounter(++searchQueueCounter);
+                    searchQueue.add(down);
 //                debug.printAStarSearch(down.getLocation());
+                }
+
+                if (searchQueue.isEmpty()) {
+                    shortestPath.clear();
+                    return shortestPath;
+                }
+                current = searchQueue.remove();
             }
 
-            if (searchQueue.isEmpty()) {
-                shortestPath.clear();
-                return shortestPath;
-            }
-            current = searchQueue.remove();
+        } catch (Exception e) {
+            shortestPath.clear();
+            return shortestPath;
         }
 
         traceBackShortestPath();
