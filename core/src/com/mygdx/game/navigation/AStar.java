@@ -14,7 +14,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 public class AStar {
 
     private Boolean isDone = false;
-    private static NavigationGraph navigationGraph;
+    private NavigationGraph navigationGraph;
     private Deque<NavigationNode> shortestPath;
     private PriorityQueue<NavigationNode> searchQueue;
     private Integer searchQueueCounter = 0;
@@ -75,6 +75,10 @@ public class AStar {
 //                debug.printAStarSearch(down.getLocation());
             }
 
+            if (searchQueue.isEmpty()) {
+                shortestPath.clear();
+                return shortestPath;
+            }
             current = searchQueue.remove();
         }
 
@@ -164,8 +168,8 @@ public class AStar {
         return navigationGraph;
     }
 
-    public static void setNavigationGraph(NavigationGraph navigationGraph) {
-        AStar.navigationGraph = navigationGraph;
+    public void setNavigationGraph(NavigationGraph navigationGraph) {
+        this.navigationGraph = navigationGraph;
     }
 
     public  Boolean getIsDone() {

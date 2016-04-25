@@ -22,17 +22,24 @@ public class Hunter extends Agent implements RenderedObject{
     private static final int WIDTH  = 25;
     private static final int HEIGHT  = 25;
     public boolean alive = true;
+    public boolean validSpawn = true;
     private GameObject collisionObject;
     private TextureRegion textureRegion;
     private Seek seek;
     private Character character;
 
-    public Hunter(SpriteBatch batch, float x, float y, float ang, Character character){
+    public Hunter(SpriteBatch batch, float x, float y, float ang, Character character, List<GameObject> gameObjects){
 
         super(IMAGE_NAME, batch, x, y, ang, WIDTH, HEIGHT);
         textureRegion = new TextureRegion(texture);
         seek = new Seek();
         this.character = character;
+
+        for (GameObject gameObject : gameObjects) {
+            if (this.collidesWith(gameObject)) {
+                validSpawn = false;
+            }
+        }
     }
 
     @Override

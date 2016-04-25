@@ -35,6 +35,7 @@ public class Feeder extends Agent implements RenderedObject {
     private static final int WIDTH  = 25;
     private static final int HEIGHT  = 25;
     public boolean triggered = false;
+    public boolean validSpawn = true;
     private GameObject collisionObject;
     private TextureRegion textureRegion;
     private FeederBreedEnum breed;
@@ -49,7 +50,7 @@ public class Feeder extends Agent implements RenderedObject {
     public Feeder(SpriteBatch batch, float x, float y, float ang, FeederBreedEnum breed, Character characterToChase,
                   List<GameObject> gameObjects, Point end, BlackHole[] blackHoles){
         super(IMAGE_NAME, batch, x, y, ang, WIDTH, HEIGHT);
-        aaSensor = new AdjacentAgentSensor(this, 200);
+        aaSensor = new AdjacentAgentSensor(this, 100);
         textureRegion = new TextureRegion(texture);
         this.breed = breed;
         this.characterToChase = characterToChase;
@@ -59,14 +60,22 @@ public class Feeder extends Agent implements RenderedObject {
         this.navigationGraph = new NavigationGraph();
         this.navigationGraph.update(gameObjects, new Rectangle(0,0,900,600));
 
+        for (GameObject gameObject : gameObjects) {
+            if (this.collidesWith(gameObject)) {
+                validSpawn = false;
+            }
+        }
+
         if(!aStar.getIsDone()) {
             Point feederPosition = new Point((int) (position.x + WIDTH / 2),
                     (int) (position.y + HEIGHT / 2));
             feederPosition = NavigationNode.findClosestNavNode(feederPosition);
             end = NavigationNode.findClosestNavNode(end);
-            AStar.setNavigationGraph(navigationGraph);
+            aStar.setNavigationGraph(navigationGraph);
             aStarShortestPath = aStar.evaluateAStar(feederPosition, end);
-//                                aStarShortestPath = AStar.evaluateAStar(feederPosition, end);
+            if (aStarShortestPath.isEmpty()) {
+                validSpawn = false;
+            }
         }
 
     }
@@ -94,23 +103,23 @@ public class Feeder extends Agent implements RenderedObject {
         }
 
         if (aStar.getIsDone()) {
-//            if (!seek.isDone()) {
+            if (!seek.isDone()) {
                 Vector2 seekToVector = new Vector2(aStarShortestPath.peek().getLocation().x,
                         aStarShortestPath.peek().getLocation().y);
                 seek.seek(this, seekToVector, Arrays.asList(blackHoles));
-//            }
-//            else
-//            {
+            }
+            else
+            {
                 if (aStarShortestPath.size() > 3)
                 {
                     aStarShortestPath.remove();
                     seek.setDone(false);
                 }
-//                else if (aStarShortestPath.size() < 2)
-//                {
-//                    seek.setDone(true);
-//                }
-//            }
+                else if (aStarShortestPath.size() <= 3)
+                {
+                    seek.setDone(false);
+                }
+            }
         }
     }
 
@@ -135,6 +144,19 @@ public class Feeder extends Agent implements RenderedObject {
             }
         }
         return false;
+    }
+
+    public static FeederBreedEnum breedFromInt(int i) {
+        switch (i) {
+            case 0:
+                return FeederBreedEnum.BREED_A;
+            case 1:
+                return FeederBreedEnum.BREED_B;
+            case 2:
+                return FeederBreedEnum.BREED_C;
+            default:
+                return FeederBreedEnum.BREED_C;
+        }
     }
 
     public enum FeederBreedEnum{

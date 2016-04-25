@@ -130,7 +130,7 @@ public class GameAI extends ApplicationAdapter {
 				Random rand = new Random();
 				int randomSide = rand.nextInt(4);
 				int xSpawn = 0, ySpawn = 0;
-				if(renderCount % (spawnRatePerSec * 60) == 0)
+				if(true)//renderCount % (spawnRatePerSec * 60) == 0)
 				{
 					switch(randomSide)
 					{
@@ -152,47 +152,55 @@ public class GameAI extends ApplicationAdapter {
 							break;
 					}
 
-                    Hunter hunter = new Hunter(batch, xSpawn, ySpawn, 270, character);
-					gameObjects.add(hunter);
-                    renderedObjects.add(hunter);
+                    Hunter hunter = new Hunter(batch, xSpawn, ySpawn, 270, character, gameObjects);
+					if (hunter.validSpawn) {
+						gameObjects.add(hunter);
+						renderedObjects.add(hunter);
+					}
 				}
 
-				if(renderCount % ((spawnRatePerSec * 60) + 30) == 0)
+				if(true)//renderCount % ((spawnRatePerSec * 60) + 30) == 0)
 				{
                     switch(randomSide)
                     {
                         case 0:
-                            xSpawn = rand.nextInt(800);
-                            ySpawn = 100;
+                            xSpawn = rand.nextInt(850);
+                            ySpawn = 50;
                             break;
                         case 1:
-                            xSpawn = rand.nextInt(800);
-                            ySpawn = 500;
+                            xSpawn = rand.nextInt(850);
+                            ySpawn = 550;
                             break;
                         case 2:
-                            xSpawn = 100;
-                            ySpawn = rand.nextInt(500);
+                            xSpawn = 50;
+                            ySpawn = rand.nextInt(550);
                             break;
                         case 3:
-                            xSpawn = 800;
-                            ySpawn = rand.nextInt(500);
+                            xSpawn = 850;
+                            ySpawn = rand.nextInt(550);
                             break;
                     }
+
+
+					int breedNum = rand.nextInt(3);
+					Feeder.FeederBreedEnum feederBreed = Feeder.breedFromInt(breedNum);
 
 					Point nestPosition = new Point(0,0);
 					for(int j=0; j<feederNests.size(); j++)
 					{
-						if(feederNests.get(j).breed == Feeder.FeederBreedEnum.BREED_A)
+						if(feederNests.get(j).breed.equals(feederBreed))
 						{
 							nestPosition.x = (int) feederNests.get(j).getPosition().x + feederNests.get(j).getWidth()/2;
 							nestPosition.y = (int) feederNests.get(j).getPosition().y + feederNests.get(j).getHeight()/2;
 						}
 					}
 
-					Feeder feeder = new Feeder(batch, xSpawn, ySpawn, 270, Feeder.FeederBreedEnum.BREED_A, character,
+					Feeder feeder = new Feeder(batch, xSpawn, ySpawn, 270, feederBreed, character,
 							gameObjects, nestPosition, blackHoles);
-					gameObjects.add(feeder);
-					renderedObjects.add(feeder);
+					if (feeder.validSpawn) {
+						gameObjects.add(feeder);
+						renderedObjects.add(feeder);
+					}
 				}
 
 				for (int i=0; i<NUM_BLACK_HOLES; i++) {
@@ -216,7 +224,7 @@ public class GameAI extends ApplicationAdapter {
                         Vector2 position = gameObjects.get(i).getPosition();
 						if(((Feeder) gameObjects.get(i)).triggered)
 						{
-							Hunter hunter = new Hunter(batch, position.x, position.y, 270, character);
+							Hunter hunter = new Hunter(batch, position.x, position.y, 270, character, gameObjects);
 							gameObjects.remove(i);
 							gameObjects.add(hunter);
                             renderedObjects.add(hunter);
@@ -300,7 +308,7 @@ public class GameAI extends ApplicationAdapter {
 
 		//Create the Navigation Graph
 		navigationGraph = new NavigationGraph();
-		AStar.setNavigationGraph(navigationGraph);
+//		AStar.setNavigationGraph(navigationGraph);
 		AStar.setGameObjects(gameObjects);
 
 		blackHoles = new BlackHole[NUM_BLACK_HOLES];
@@ -336,20 +344,20 @@ public class GameAI extends ApplicationAdapter {
 				feederNests.add(createNewNest(Feeder.FeederBreedEnum.BREED_A));
 				feederNests.add(createNewNest(Feeder.FeederBreedEnum.BREED_B));
                 spawnRatePerSec = 6;
-                Seek.SPEED_FACTOR = 3;
+                Seek.SPEED_FACTOR = 2.2f;
 				break;
 			case HARD:
 				feederNests.add(createNewNest(Feeder.FeederBreedEnum.BREED_A));
 				feederNests.add(createNewNest(Feeder.FeederBreedEnum.BREED_B));
                 spawnRatePerSec = 5;
-                Seek.SPEED_FACTOR = 4;
+                Seek.SPEED_FACTOR = 2.8f;
                 break;
 			case BRUTAL:
 				feederNests.add(createNewNest(Feeder.FeederBreedEnum.BREED_A));
 				feederNests.add(createNewNest(Feeder.FeederBreedEnum.BREED_B));
 				feederNests.add(createNewNest(Feeder.FeederBreedEnum.BREED_C));
                 spawnRatePerSec = 3;
-                Seek.SPEED_FACTOR = 5;
+                Seek.SPEED_FACTOR = 3;
 				break;
 		}
 	}

@@ -77,6 +77,10 @@ public class BlackHole extends GameObject implements RenderedObject{
         placementSensor.detect(objects);
         adjacentObjects = placementSensor.getAdjacentObjects();
 
+        if (this.position.x < 100 || this.position.x > 800 || this.position.y < 100 || this.position.y > 500) {
+            return false;
+        }
+
         for (AdjacentObject adjacentObject : adjacentObjects) {
 
             GameObject detectedObject = adjacentObject.getDetectedObject();

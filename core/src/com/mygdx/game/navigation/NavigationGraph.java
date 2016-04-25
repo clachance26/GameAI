@@ -68,9 +68,9 @@ public class NavigationGraph {
 
         for(GameObject object : gameObjects) {
 
-            if (object instanceof Hunter || object instanceof Feeder || object instanceof FeederNest || object instanceof Character) {
-                return true;
-            }
+//            if (object instanceof Hunter || object instanceof Feeder || object instanceof FeederNest || object instanceof Character) {
+//                return true;
+//            }
 
             Rectangle objectBounds = new Rectangle((int) object.getPosition().x,
                                                    (int) object.getPosition().y,
@@ -100,6 +100,9 @@ public class NavigationGraph {
             }
 
             if(Intersector.overlaps(nodeBounds, objectBounds)) {
+                if (object instanceof Hunter || object instanceof Feeder || object instanceof FeederNest || object instanceof Character) {
+                    return true;
+                }
                 return false;
             }
         }
